@@ -1,4 +1,4 @@
-我的世界启动器（YXG Minecraft Launcher）v1.0
+我的世界启动器（YXG Minecraft Launcher）v0.1
 
 一款 HMCL 风格、结合 PCL2 创新功能的《我的世界》第三方启动器，作为 light 原 GUI 的侧边栏原生面板插件运行（纯 C++ 自绘界面，零 JS）。
 
