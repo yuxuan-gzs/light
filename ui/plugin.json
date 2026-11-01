@@ -1,0 +1,9 @@
+{
+  "id": "yxg-minecraft-launcher-ui",
+  "name": "我的世界启动器",
+  "version": "1.0.0",
+  "author": "YXG",
+  "description": "现代化 Minecraft 第三方启动器，由 C++ 核心 YXG_MinecraftLauncher.dll 驱动，界面通过 mc.* API 交互。",
+  "icon": "⛏",
+  "entry": "main.js"
+}

@@ -1,0 +1,14 @@
+我的世界启动器（HMCL 兼容 + PCL2 创新功能）
+
+一个用现代 C++20 编写的 Minecraft 第三方启动器，纯 C++ 自绘原生窗口 UI（无 JS），编译为 light 的 IGuiProvider 插件 DLL。
+
+功能：
+- HMCL 风格：标准 Mojang 版本 JSON + .minecraft 目录布局，版本下载/安装/启动
+- 版本清单拉取、客户端 Jar / 依赖库 / 资源自动下载（BMCLAPI / MCBBS / Mojang 三源）
+- 依赖规则解析、原生库解压、classpath 与启动参数构建
+- 离线登录（精确离线 UUID）+ 微软正版登录（设备码流程）
+- 自动检测 Java、启动游戏并捕获日志
+- PCL2 创新：背景设置（纯色/图片/轮播 + 磨砂玻璃）、Mod 前置检测与一键补充
+
+安装：将 YXG_MinecraftLauncher.dll 放入 light 的 plugins\ 目录（light.exe 同级），
+启动 light（GUI 模式 + gui_provider.txt 设为 auto/external）即可看到启动器界面。
