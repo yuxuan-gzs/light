@@ -1,0 +1,15 @@
+D:\YX\VCBlocks\VCBlocks\src\main.cpp;D:\YX\VCBlocks\VCBlocks\x64\Debug\main.obj
+D:\YX\VCBlocks\VCBlocks\src\App.cpp;D:\YX\VCBlocks\VCBlocks\x64\Debug\App.obj
+D:\YX\VCBlocks\VCBlocks\src\core\util.cpp;D:\YX\VCBlocks\VCBlocks\x64\Debug\util.obj
+D:\YX\VCBlocks\VCBlocks\src\core\Json.cpp;D:\YX\VCBlocks\VCBlocks\x64\Debug\Json.obj
+D:\YX\VCBlocks\VCBlocks\src\core\BlockModel.cpp;D:\YX\VCBlocks\VCBlocks\x64\Debug\BlockModel.obj
+D:\YX\VCBlocks\VCBlocks\src\core\BlockLibrary.cpp;D:\YX\VCBlocks\VCBlocks\x64\Debug\BlockLibrary.obj
+D:\YX\VCBlocks\VCBlocks\src\core\Translator.cpp;D:\YX\VCBlocks\VCBlocks\x64\Debug\Translator.obj
+D:\YX\VCBlocks\VCBlocks\src\core\ProjectStore.cpp;D:\YX\VCBlocks\VCBlocks\x64\Debug\ProjectStore.obj
+D:\YX\VCBlocks\VCBlocks\src\core\CodeGenerator.cpp;D:\YX\VCBlocks\VCBlocks\x64\Debug\CodeGenerator.obj
+D:\YX\VCBlocks\VCBlocks\src\core\Decompiler.cpp;D:\YX\VCBlocks\VCBlocks\x64\Debug\Decompiler.obj
+D:\YX\VCBlocks\VCBlocks\src\core\LibraryScanner.cpp;D:\YX\VCBlocks\VCBlocks\x64\Debug\LibraryScanner.obj
+D:\YX\VCBlocks\VCBlocks\src\core\Toolchain.cpp;D:\YX\VCBlocks\VCBlocks\x64\Debug\Toolchain.obj
+D:\YX\VCBlocks\VCBlocks\src\core\DllBuilder.cpp;D:\YX\VCBlocks\VCBlocks\x64\Debug\DllBuilder.obj
+D:\YX\VCBlocks\VCBlocks\src\ui\Theme.cpp;D:\YX\VCBlocks\VCBlocks\x64\Debug\Theme.obj
+D:\YX\VCBlocks\VCBlocks\src\ui\MainWindow.cpp;D:\YX\VCBlocks\VCBlocks\x64\Debug\MainWindow.obj

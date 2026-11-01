@@ -1,0 +1,6 @@
+LIBRARY tcc_plugin.dll
+
+EXPORTS
+YXG_GetExtensionInfo
+YXG_RegisterPlugin
+YXG_UnregisterPlugin

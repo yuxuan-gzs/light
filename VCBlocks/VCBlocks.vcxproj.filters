@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx</Extensions>
+    </Filter>
+    <Filter Include="核心">
+      <UniqueIdentifier>{B0C1D2E3-F4A5-4678-9B0C-1D2E3F4A5B6C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="界面">
+      <UniqueIdentifier>{C1D2E3F4-A5B6-4789-AC0D-2E3F4A5B6C7D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="接口">
+      <UniqueIdentifier>{D2E3F4A5-B6C7-489A-BD1E-3F4A5B6C7D8E}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\PluginEntry.cpp"><Filter>源文件</Filter></ClCompile>
+    <ClCompile Include="src\core\util.cpp"><Filter>核心</Filter></ClCompile>
+    <ClCompile Include="src\core\Json.cpp"><Filter>核心</Filter></ClCompile>
+    <ClCompile Include="src\core\BlockModel.cpp"><Filter>核心</Filter></ClCompile>
+    <ClCompile Include="src\core\BlockLibrary.cpp"><Filter>核心</Filter></ClCompile>
+    <ClCompile Include="src\core\Translator.cpp"><Filter>核心</Filter></ClCompile>
+    <ClCompile Include="src\core\ProjectStore.cpp"><Filter>核心</Filter></ClCompile>
+    <ClCompile Include="src\core\CodeGenerator.cpp"><Filter>核心</Filter></ClCompile>
+    <ClCompile Include="src\core\Decompiler.cpp"><Filter>核心</Filter></ClCompile>
+    <ClCompile Include="src\core\LibraryScanner.cpp"><Filter>核心</Filter></ClCompile>
+    <ClCompile Include="src\core\TccCompiler.cpp"><Filter>核心</Filter></ClCompile>
+    <ClCompile Include="src\core\JdkCompiler.cpp"><Filter>核心</Filter></ClCompile>
+    <ClCompile Include="src\core\MsvcCompiler.cpp"><Filter>核心</Filter></ClCompile>
+    <ClCompile Include="src\core\Http.cpp"><Filter>核心</Filter></ClCompile>
+    <ClCompile Include="src\core\LibraryStore.cpp"><Filter>核心</Filter></ClCompile>
+    <ClCompile Include="src\core\AppSettings.cpp"><Filter>核心</Filter></ClCompile>
+    <ClCompile Include="src\core\DllBuilder.cpp"><Filter>核心</Filter></ClCompile>
+    <ClCompile Include="src\ui\Theme.cpp"><Filter>界面</Filter></ClCompile>
+    <ClCompile Include="src\ui\MainWindow.cpp"><Filter>界面</Filter></ClCompile>
+    <ClCompile Include="src\ui\LibraryStorePanel.cpp"><Filter>界面</Filter></ClCompile>
+    <ClCompile Include="src\ui\StartupDialog.cpp"><Filter>界面</Filter></ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\core\util.h"><Filter>核心</Filter></ClInclude>
+    <ClInclude Include="src\core\Json.h"><Filter>核心</Filter></ClInclude>
+    <ClInclude Include="src\core\BlockModel.h"><Filter>核心</Filter></ClInclude>
+    <ClInclude Include="src\core\BlockLibrary.h"><Filter>核心</Filter></ClInclude>
+    <ClInclude Include="src\core\Translator.h"><Filter>核心</Filter></ClInclude>
+    <ClInclude Include="src\core\ProjectStore.h"><Filter>核心</Filter></ClInclude>
+    <ClInclude Include="src\core\CodeGenerator.h"><Filter>核心</Filter></ClInclude>
+    <ClInclude Include="src\core\CompileConfig.h"><Filter>核心</Filter></ClInclude>
+    <ClInclude Include="src\core\Decompiler.h"><Filter>核心</Filter></ClInclude>
+    <ClInclude Include="src\core\LibraryScanner.h"><Filter>核心</Filter></ClInclude>
+    <ClInclude Include="src\core\TccCompiler.h"><Filter>核心</Filter></ClInclude>
+    <ClInclude Include="src\core\JdkCompiler.h"><Filter>核心</Filter></ClInclude>
+    <ClInclude Include="src\core\MsvcCompiler.h"><Filter>核心</Filter></ClInclude>
+    <ClInclude Include="src\core\Http.h"><Filter>核心</Filter></ClInclude>
+    <ClInclude Include="src\core\LibraryStore.h"><Filter>核心</Filter></ClInclude>
+    <ClInclude Include="src\core\AppSettings.h"><Filter>核心</Filter></ClInclude>
+    <ClInclude Include="src\core\DllBuilder.h"><Filter>核心</Filter></ClInclude>
+    <ClInclude Include="src\ui\Theme.h"><Filter>界面</Filter></ClInclude>
+    <ClInclude Include="src\ui\MainWindow.h"><Filter>界面</Filter></ClInclude>
+    <ClInclude Include="src\ui\LibraryStorePanel.h"><Filter>界面</Filter></ClInclude>
+    <ClInclude Include="src\ui\StartupDialog.h"><Filter>界面</Filter></ClInclude>
+    <ClInclude Include="include\YXExtension.h"><Filter>接口</Filter></ClInclude>
+  </ItemGroup>
+</Project>

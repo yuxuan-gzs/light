@@ -1,0 +1,23 @@
+{
+    "backgroundColor": "#1E1E1E",
+    "backgroundImage": "",
+    "backgroundStyle": 2,
+    "compile": {
+        "config": 1,
+        "optimize": 2,
+        "output": 1,
+        "pluginDll": true,
+        "runAfterBuild": true,
+        "runtime": 1,
+        "symbols": false,
+        "warnLevel": 3
+    },
+    "defaultLang": "cpp",
+    "lastProject": "ProjectC",
+    "locale": "zh-CN",
+    "recentProjects": [
+        "ProjectC",
+        "ProjectA",
+        "ProjectB"
+    ]
+}

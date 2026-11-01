@@ -1,0 +1,99 @@
+{
+    "functions": [
+        {
+            "description": "打印输出",
+            "name": "printf",
+            "translation": "打印输出"
+        },
+        {
+            "description": "读取输入",
+            "name": "scanf",
+            "translation": "读取输入"
+        },
+        {
+            "description": "打开文件",
+            "name": "fopen",
+            "translation": "打开文件"
+        },
+        {
+            "description": "关闭文件",
+            "name": "fclose",
+            "translation": "关闭文件"
+        },
+        {
+            "description": "读取文件",
+            "name": "fread",
+            "translation": "读取文件"
+        },
+        {
+            "description": "写入文件",
+            "name": "fwrite",
+            "translation": "写入文件"
+        },
+        {
+            "description": "格式化写入文件",
+            "name": "fprintf",
+            "translation": "格式化写入文件"
+        },
+        {
+            "description": "读取一行",
+            "name": "fgets",
+            "translation": "读取一行"
+        },
+        {
+            "description": "写入字符串",
+            "name": "fputs",
+            "translation": "写入字符串"
+        },
+        {
+            "description": "输出字符串",
+            "name": "puts",
+            "translation": "输出字符串"
+        },
+        {
+            "description": "输出字符",
+            "name": "putchar",
+            "translation": "输出字符"
+        },
+        {
+            "description": "读取字符",
+            "name": "getchar",
+            "translation": "读取字符"
+        },
+        {
+            "description": "格式化到字符串",
+            "name": "sprintf",
+            "translation": "格式化到字符串"
+        },
+        {
+            "description": "从字符串读取",
+            "name": "sscanf",
+            "translation": "从字符串读取"
+        },
+        {
+            "description": "刷新缓冲区",
+            "name": "fflush",
+            "translation": "刷新缓冲区"
+        }
+    ],
+    "language": "中文",
+    "locale": "zh-CN",
+    "name": "stdio.h",
+    "strings": {
+        "fclose": "关闭文件",
+        "fflush": "刷新缓冲区",
+        "fgets": "读取一行",
+        "fopen": "打开文件",
+        "fprintf": "格式化写入文件",
+        "fputs": "写入字符串",
+        "fread": "读取文件",
+        "fwrite": "写入文件",
+        "getchar": "读取字符",
+        "printf": "打印输出",
+        "putchar": "输出字符",
+        "puts": "输出字符串",
+        "scanf": "读取输入",
+        "sprintf": "格式化到字符串",
+        "sscanf": "从字符串读取"
+    }
+}

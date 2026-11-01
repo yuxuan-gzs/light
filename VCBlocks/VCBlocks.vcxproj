@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>18.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{8B5E2A60-4C3E-4F2A-9B7D-1C2E3F4A5B6C}</ProjectGuid>
+    <RootNamespace>VCBlocks</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>gdiplus.lib;comdlg32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>gdiplus.lib;comdlg32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="src\PluginEntry.cpp" />
+    <ClCompile Include="src\core\util.cpp" />
+    <ClCompile Include="src\core\Json.cpp" />
+    <ClCompile Include="src\core\BlockModel.cpp" />
+    <ClCompile Include="src\core\BlockLibrary.cpp" />
+    <ClCompile Include="src\core\Translator.cpp" />
+    <ClCompile Include="src\core\ProjectStore.cpp" />
+    <ClCompile Include="src\core\CodeGenerator.cpp" />
+    <ClCompile Include="src\core\Decompiler.cpp" />
+    <ClCompile Include="src\core\LibraryScanner.cpp" />
+    <ClCompile Include="src\core\TccCompiler.cpp" />
+    <ClCompile Include="src\core\JdkCompiler.cpp" />
+    <ClCompile Include="src\core\MsvcCompiler.cpp" />
+    <ClCompile Include="src\core\Http.cpp" />
+    <ClCompile Include="src\core\LibraryStore.cpp" />
+    <ClCompile Include="src\core\AppSettings.cpp" />
+    <ClCompile Include="src\core\DllBuilder.cpp" />
+    <ClCompile Include="src\ui\Theme.cpp" />
+    <ClCompile Include="src\ui\MainWindow.cpp" />
+    <ClCompile Include="src\ui\LibraryStorePanel.cpp" />
+    <ClCompile Include="src\ui\StartupDialog.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\core\util.h" />
+    <ClInclude Include="src\core\Json.h" />
+    <ClInclude Include="src\core\BlockModel.h" />
+    <ClInclude Include="src\core\BlockLibrary.h" />
+    <ClInclude Include="src\core\Translator.h" />
+    <ClInclude Include="src\core\ProjectStore.h" />
+    <ClInclude Include="src\core\CodeGenerator.h" />
+    <ClInclude Include="src\core\CompileConfig.h" />
+    <ClInclude Include="src\core\Decompiler.h" />
+    <ClInclude Include="src\core\LibraryScanner.h" />
+    <ClInclude Include="src\core\TccCompiler.h" />
+    <ClInclude Include="src\core\JdkCompiler.h" />
+    <ClInclude Include="src\core\MsvcCompiler.h" />
+    <ClInclude Include="src\core\Http.h" />
+    <ClInclude Include="src\core\LibraryStore.h" />
+    <ClInclude Include="src\core\AppSettings.h" />
+    <ClInclude Include="src\core\DllBuilder.h" />
+    <ClInclude Include="src\ui\Theme.h" />
+    <ClInclude Include="src\ui\MainWindow.h" />
+    <ClInclude Include="src\ui\LibraryStorePanel.h" />
+    <ClInclude Include="src\ui\StartupDialog.h" />
+    <ClInclude Include="include\YXExtension.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="tcc_res.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

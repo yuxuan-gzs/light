@@ -1,0 +1,19 @@
+﻿  main.cpp
+  App.cpp
+  util.cpp
+  Json.cpp
+  BlockModel.cpp
+  BlockLibrary.cpp
+  Translator.cpp
+  ProjectStore.cpp
+  CodeGenerator.cpp
+  Decompiler.cpp
+  LibraryScanner.cpp
+  Toolchain.cpp
+  DllBuilder.cpp
+  Theme.cpp
+  MainWindow.cpp
+D:\YX\VCBlocks\VCBlocks\src\ui\MainWindow.cpp(324,36): warning C4244: “参数”: 从“int”转换到“Gdiplus::REAL”，可能丢失数据
+D:\YX\VCBlocks\VCBlocks\src\ui\MainWindow.cpp(369,42): warning C4244: “参数”: 从“int”转换到“Gdiplus::REAL”，可能丢失数据
+  正在生成代码...
+  VCBlocks.vcxproj -> D:\YX\VCBlocks\x64\Debug\VCBlocks.exe
