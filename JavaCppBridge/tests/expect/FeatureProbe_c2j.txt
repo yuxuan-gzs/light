@@ -1,0 +1,7 @@
+tag=probe tier=pro hasTag=1
+square=16 shift=20
+sum=6 acc=10 calls=2
+joined=feature-probe twice=42
+mapA=1 mapSize=2 guarded=-1
+ready=1 label=label-pro mode=0
+reset=0

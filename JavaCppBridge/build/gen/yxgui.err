@@ -1,0 +1,445 @@
+warning(line 59): namespace alias ignored
+warning(line 615): out-of-line member 'YXGuiPlugin::YXGuiPlugin': class 'YXGuiPlugin' is not defined in this file; an empty class was synthesized for it
+warning(line 2437): local struct definition skipped (no Java equivalent)
+warning(line 4628): local struct definition skipped (no Java equivalent)
+warning(line 4707): local struct definition skipped (no Java equivalent)
+warning(line 5217): local struct definition skipped (no Java equivalent)
+warning(line 5268): local struct definition skipped (no Java equivalent)
+warning(line 6104): local struct definition skipped (no Java equivalent)
+warning(line 7610): unknown macro 'PLUGIN_API' treated as an export specifier and skipped
+warning(line 7615): unknown macro 'PLUGIN_API' treated as an export specifier and skipped
+warning(line 7625): unknown macro 'PLUGIN_API' treated as an export specifier and skipped
+warning(line 7630): unknown macro 'PLUGIN_API' treated as an export specifier and skipped
+warning(line 276): multiple inheritance approximated: 'ICoreWebView2EnvironmentOptions6' -> implements
+warning(line 307): sizeof has no Java equivalent; emitted as 0
+warning(line 315): sizeof has no Java equivalent; emitted as 0
+warning(line 323): sizeof has no Java equivalent; emitted as 0
+warning(line 698): 'return {};' approximated as 'new ArrayList<>()'
+warning(line 729): c_str() approximated to null
+warning(line 745): c_str() approximated to null
+warning(line 757): c_str() approximated to null
+warning(line 803): c_str() approximated to null
+warning(line 817): c_str() approximated to null
+warning(line 829): free function 'AnsiToWide' has no Java equivalent; kept as-is
+warning(line 842): c_str() approximated to null
+warning(line 846): free function 'GetCacheSubDir' has no Java equivalent; kept as-is
+warning(line 847): free function 'AnsiToWide' has no Java equivalent; kept as-is
+warning(line 848): c_str() approximated to null
+warning(line 874): free function 'WideToUtf8' has no Java equivalent; kept as-is
+warning(line 876): free function 'WideToUtf8' has no Java equivalent; kept as-is
+warning(line 891): free function 'AnsiToWide' has no Java equivalent; kept as-is
+warning(line 904): free function 'GetCacheSubDir' has no Java equivalent; kept as-is
+warning(line 905): c_str() approximated to null
+warning(line 912): braced init list used as a standalone expression
+warning(line 913): braced init list used as a standalone expression
+warning(line 914): braced init list used as a standalone expression
+warning(line 915): braced init list used as a standalone expression
+warning(line 916): braced init list used as a standalone expression
+warning(line 917): braced init list used as a standalone expression
+warning(line 918): braced init list used as a standalone expression
+warning(line 919): braced init list used as a standalone expression
+warning(line 920): braced init list used as a standalone expression
+warning(line 921): braced init list used as a standalone expression
+warning(line 922): braced init list used as a standalone expression
+warning(line 925): braced init list used as a standalone expression
+warning(line 926): braced init list used as a standalone expression
+warning(line 926): braced init list used as a standalone expression
+warning(line 927): braced init list used as a standalone expression
+warning(line 927): braced init list used as a standalone expression
+warning(line 928): braced init list used as a standalone expression
+warning(line 928): braced init list used as a standalone expression
+warning(line 929): braced init list used as a standalone expression
+warning(line 929): braced init list used as a standalone expression
+warning(line 930): braced init list used as a standalone expression
+warning(line 930): braced init list used as a standalone expression
+warning(line 957): console/stream I/O 'getline' not supported
+warning(line 958): container op 'pop_back' approximated: remove
+warning(line 977): free function 'AnsiToWide' has no Java equivalent; kept as-is
+warning(line 978): free function 'AnsiToWide' has no Java equivalent; kept as-is
+warning(line 985): console/stream I/O 'getline' not supported
+warning(line 990): free function 'AnsiToWide' has no Java equivalent; kept as-is
+warning(line 994): free function 'AnsiToWide' has no Java equivalent; kept as-is
+warning(line 1023): console/stream I/O 'getline' not supported
+warning(line 1025): free function 'AnsiToWide' has no Java equivalent; kept as-is
+warning(line 1032): cast to void dropped
+warning(line 1041): braced init list used as a standalone expression
+warning(line 1042): braced init list used as a standalone expression
+warning(line 1042): braced init list used as a standalone expression
+warning(line 1043): braced init list used as a standalone expression
+warning(line 1043): braced init list used as a standalone expression
+warning(line 1044): braced init list used as a standalone expression
+warning(line 1044): braced init list used as a standalone expression
+warning(line 1045): braced init list used as a standalone expression
+warning(line 1045): braced init list used as a standalone expression
+warning(line 1046): braced init list used as a standalone expression
+warning(line 1046): braced init list used as a standalone expression
+warning(line 1065): free function 'GetCacheSubDir' has no Java equivalent; kept as-is
+warning(line 1065): c_str() approximated to null
+warning(line 1074): free function 'WideToUtf8' has no Java equivalent; kept as-is
+warning(line 1075): free function 'WideToUtf8' has no Java equivalent; kept as-is
+warning(line 1081): free function 'WideToUtf8' has no Java equivalent; kept as-is
+warning(line 1105): free function 'WideToUtf8' has no Java equivalent; kept as-is
+warning(line 1162): lambda capture 'this , tabIndex' dropped (Java captures effectively-final locals)
+warning(line 1223): lambda capture 'this , tabIndex' dropped (Java captures effectively-final locals)
+warning(line 1258): lambda capture 'this , tabIndex' dropped (Java captures effectively-final locals)
+warning(line 1274): lambda capture 'this , tabIndex' dropped (Java captures effectively-final locals)
+warning(line 1287): cast to void dropped
+warning(line 1291): lambda capture 'this' dropped (Java captures effectively-final locals)
+warning(line 1360): lambda capture 'this , tabIndex' dropped (Java captures effectively-final locals)
+warning(line 1367): iterator begin()/end() unsupported; prefer range-for
+warning(line 1394): cast to void dropped
+warning(line 1407): cast to void dropped
+warning(line 1462): c_str() approximated to null
+warning(line 1521): iterator begin()/end() unsupported; prefer range-for
+warning(line 1530): unsupported call target; emitted as-is
+warning(line 1530): std::min used as expression
+warning(line 1641): unsupported call target; emitted as-is
+warning(line 1643): unsupported call target; emitted as-is
+warning(line 1683): c_str() approximated to null
+warning(line 1782): sizeof has no Java equivalent; emitted as 0
+warning(line 1796): free function 'GetCacheSubDir' has no Java equivalent; kept as-is
+warning(line 1797): free function 'AnsiToWide' has no Java equivalent; kept as-is
+warning(line 1803): cast to void dropped
+warning(line 1820): lambda capture 'this' dropped (Java captures effectively-final locals)
+warning(line 1844): c_str() approximated to null
+warning(line 1848): c_str() approximated to null
+warning(line 1891): free function 'GetCacheSubDir' has no Java equivalent; kept as-is
+warning(line 1894): c_str() approximated to null
+warning(line 1913): c_str() approximated to null
+warning(line 1916): free function 'AnsiToWide' has no Java equivalent; kept as-is
+warning(line 1918): free function 'AnsiToWide' has no Java equivalent; kept as-is
+warning(line 1921): c_str() approximated to null
+warning(line 1921): c_str() approximated to null
+warning(line 1945): free function 'WideToUtf8' has no Java equivalent; kept as-is
+warning(line 1948): std::istreambuf_iterator kept as-is (unmapped)
+warning(line 1949): std::istreambuf_iterator kept as-is (unmapped)
+warning(line 1951): free function 'JsonExtractString' has no Java equivalent; kept as-is
+warning(line 1952): free function 'JsonExtractString' has no Java equivalent; kept as-is
+warning(line 1953): free function 'JsonExtractString' has no Java equivalent; kept as-is
+warning(line 1954): free function 'JsonExtractStringArray' has no Java equivalent; kept as-is
+warning(line 1960): free function 'JsonExtractString' has no Java equivalent; kept as-is
+warning(line 1962): free function 'JsonExtractString' has no Java equivalent; kept as-is
+warning(line 1967): free function 'JsonExtractString' has no Java equivalent; kept as-is
+warning(line 1977): cast to void dropped
+warning(line 1983): cast to void dropped
+warning(line 2000): c_str() approximated to null
+warning(line 2002): lambda capture 'this , wpath' dropped (Java captures effectively-final locals)
+warning(line 2016): c_str() approximated to null
+warning(line 2016): c_str() approximated to null
+warning(line 2052): sizeof has no Java equivalent; emitted as 0
+warning(line 2123): unsupported call target; emitted as-is
+warning(line 2124): unsupported call target; emitted as-is
+warning(line 2137): lambda capture '&' dropped (Java captures effectively-final locals)
+warning(line 2161): c_str() approximated to null
+warning(line 2178): c_str() approximated to null
+warning(line 2212): unsupported call target; emitted as-is
+warning(line 2213): unsupported call target; emitted as-is
+warning(line 2213): unsupported call target; emitted as-is
+warning(line 2252): sizeof has no Java equivalent; emitted as 0
+warning(line 2350): sizeof has no Java equivalent; emitted as 0
+warning(line 2420): c_str() approximated to null
+warning(line 2584): unsupported call target; emitted as-is
+warning(line 2585): unsupported call target; emitted as-is
+warning(line 2666): unsupported call target; emitted as-is
+warning(line 2667): unsupported call target; emitted as-is
+warning(line 2694): unsupported call target; emitted as-is
+warning(line 2695): unsupported call target; emitted as-is
+warning(line 2696): unsupported call target; emitted as-is
+warning(line 2718): c_str() approximated to null
+warning(line 2724): unsupported call target; emitted as-is
+warning(line 2724): std::max used as expression
+warning(line 2740): c_str() approximated to null
+warning(line 2750): c_str() approximated to null
+warning(line 2787): c_str() approximated to null
+warning(line 2858): iterator begin()/end() unsupported; prefer range-for
+warning(line 2873): c_str() approximated to null
+warning(line 2947): lambda capture 'pThis , extPath , targetEnabled' dropped (Java captures effectively-final locals)
+warning(line 2951): c_str() approximated to null
+warning(line 2951): c_str() approximated to null
+warning(line 2978): c_str() approximated to null
+warning(line 2984): free function 'GetCacheSubDir' has no Java equivalent; kept as-is
+warning(line 2989): free function 'AnsiToWide' has no Java equivalent; kept as-is
+warning(line 2993): sizeof has no Java equivalent; emitted as 0
+warning(line 3010): c_str() approximated to null
+warning(line 3033): free function 'ShowInputDialog' has no Java equivalent; kept as-is
+warning(line 3041): free function 'ExtractExtIdFromUrl' has no Java equivalent; kept as-is
+warning(line 3088): free function 'GetCacheSubDir' has no Java equivalent; kept as-is
+warning(line 3089): free function 'AnsiToWide' has no Java equivalent; kept as-is
+warning(line 3090): c_str() approximated to null
+warning(line 3098): std::make_unique<T>(...) template args unsupported; use explicit T(...) in input
+warning(line 3100): lambda capture 'this' dropped (Java captures effectively-final locals)
+warning(line 3103): lambda capture 'this' dropped (Java captures effectively-final locals)
+warning(line 3122): c_str() approximated to null
+warning(line 3132): c_str() approximated to null
+warning(line 3140): std::istreambuf_iterator kept as-is (unmapped)
+warning(line 3141): std::istreambuf_iterator kept as-is (unmapped)
+warning(line 3142): free function 'JsonExtractString' has no Java equivalent; kept as-is
+warning(line 3150): std::make_unique<T>(...) template args unsupported; use explicit T(...) in input
+warning(line 3152): lambda capture 'this' dropped (Java captures effectively-final locals)
+warning(line 3155): lambda capture 'this' dropped (Java captures effectively-final locals)
+warning(line 3320): free function 'FindLivelyCover' has no Java equivalent; kept as-is
+warning(line 3327): free function 'IsVideoExt' has no Java equivalent; kept as-is
+warning(line 3343): c_str() approximated to null
+warning(line 3342): free function 'CreateVideoThumbBitmap' has no Java equivalent; kept as-is
+warning(line 3526): iterator begin()/end() unsupported; prefer range-for
+warning(line 3589): free function 'AnsiToWide' has no Java equivalent; kept as-is
+warning(line 3590): free function 'AnsiToWide' has no Java equivalent; kept as-is
+warning(line 3591): free function 'AnsiToWide' has no Java equivalent; kept as-is
+warning(line 3592): free function 'AnsiToWide' has no Java equivalent; kept as-is
+warning(line 3593): free function 'AnsiToWide' has no Java equivalent; kept as-is
+warning(line 3594): free function 'AnsiToWide' has no Java equivalent; kept as-is
+warning(line 3661): free function 'WideToUtf8' has no Java equivalent; kept as-is
+warning(line 3680): free function 'WideToUtf8' has no Java equivalent; kept as-is
+warning(line 3681): free function 'AnsiToWide' has no Java equivalent; kept as-is
+warning(line 3684): free function 'WideToUtf8' has no Java equivalent; kept as-is
+warning(line 3693): c_str() approximated to null
+warning(line 3692): c_str() approximated to null
+warning(line 3698): c_str() approximated to null
+warning(line 3716): sizeof has no Java equivalent; emitted as 0
+warning(line 3748): free function 'GetCacheSubDir' has no Java equivalent; kept as-is
+warning(line 3749): free function 'AnsiToWide' has no Java equivalent; kept as-is
+warning(line 3755): cast to void dropped
+warning(line 3765): lambda capture 'this , wExtId , wPopPath , hHost , w , h' dropped (Java captures effectively-final locals)
+warning(line 3773): lambda capture 'this , wExtId , wPopPath , w , h' dropped (Java captures effectively-final locals)
+warning(line 3786): cast to void dropped
+warning(line 3794): c_str() approximated to null
+warning(line 3807): c_str() approximated to null
+warning(line 3810): c_str() approximated to null
+warning(line 3889): sizeof has no Java equivalent; emitted as 0
+warning(line 3917): free function 'GetCacheSubDir' has no Java equivalent; kept as-is
+warning(line 3918): free function 'AnsiToWide' has no Java equivalent; kept as-is
+warning(line 3924): cast to void dropped
+warning(line 3934): lambda capture 'this , wExtId , wOptPath , hHost , w , h' dropped (Java captures effectively-final locals)
+warning(line 3943): lambda capture 'this , wExtId , wOptPath , w , h' dropped (Java captures effectively-final locals)
+warning(line 3956): cast to void dropped
+warning(line 3964): c_str() approximated to null
+warning(line 3976): c_str() approximated to null
+warning(line 3979): c_str() approximated to null
+warning(line 4050): cast to void dropped
+warning(line 4057): cast to void dropped
+warning(line 4062): c_str() approximated to null
+warning(line 4064): lambda capture 'this , pathCopy' dropped (Java captures effectively-final locals)
+warning(line 4114): c_str() approximated to null
+warning(line 4124): free function 'GetCacheSubDir' has no Java equivalent; kept as-is
+warning(line 4125): free function 'AnsiToWide' has no Java equivalent; kept as-is
+warning(line 4128): free function 'CrxStripper_WriteZip' has no Java equivalent; kept as-is
+warning(line 4129): c_str() approximated to null
+warning(line 4133): free function 'GetCacheSubDir' has no Java equivalent; kept as-is
+warning(line 4134): free function 'AnsiToWide' has no Java equivalent; kept as-is
+warning(line 4139): free function 'WideToUtf8' has no Java equivalent; kept as-is
+warning(line 4141): free function 'WideToUtf8' has no Java equivalent; kept as-is
+warning(line 4146): c_str() approximated to null
+warning(line 4150): free function 'WaitForManifest' has no Java equivalent; kept as-is
+warning(line 4151): c_str() approximated to null
+warning(line 4155): c_str() approximated to null
+warning(line 4163): lambda capture 'this' dropped (Java captures effectively-final locals)
+warning(line 4167): free function 'GetCacheSubDir' has no Java equivalent; kept as-is
+warning(line 4168): free function 'AnsiToWide' has no Java equivalent; kept as-is
+warning(line 4169): c_str() approximated to null
+warning(line 4184): c_str() approximated to null
+warning(line 4187): c_str() approximated to null
+warning(line 4187): c_str() approximated to null
+warning(line 4199): c_str() approximated to null
+warning(line 4209): c_str() approximated to null
+warning(line 4163): std::thread kept as-is (unmapped)
+warning(line 4283): lambda capture 'this , crx , fname' dropped (Java captures effectively-final locals)
+warning(line 4284): free function 'GetCacheSubDir' has no Java equivalent; kept as-is
+warning(line 4285): free function 'AnsiToWide' has no Java equivalent; kept as-is
+warning(line 4286): c_str() approximated to null
+warning(line 4291): c_str() approximated to null
+warning(line 4291): c_str() approximated to null
+warning(line 4306): c_str() approximated to null
+warning(line 4310): c_str() approximated to null
+warning(line 4311): c_str() approximated to null
+warning(line 4283): std::thread kept as-is (unmapped)
+warning(line 4335): free function 'GetFavFilePath' has no Java equivalent; kept as-is
+warning(line 4338): console/stream I/O 'getline' not supported
+warning(line 4340): free function 'AnsiToWide' has no Java equivalent; kept as-is
+warning(line 4345): free function 'GetFavFilePath' has no Java equivalent; kept as-is
+warning(line 4347): free function 'WideToUtf8' has no Java equivalent; kept as-is
+warning(line 4355): iterator begin()/end() unsupported; prefer range-for
+warning(line 4355): iterator begin()/end() unsupported; prefer range-for
+warning(line 4355): std::find kept as-is (unmapped)
+warning(line 4356): iterator begin()/end() unsupported; prefer range-for
+warning(line 4379): c_str() approximated to null
+warning(line 4413): free function 'AnsiToWide' has no Java equivalent; kept as-is
+warning(line 4415): sizeof has no Java equivalent; emitted as 0
+warning(line 4421): c_str() approximated to null
+warning(line 4435): c_str() approximated to null
+warning(line 4437): c_str() approximated to null
+warning(line 4543): sizeof has no Java equivalent; emitted as 0
+warning(line 4547): c_str() approximated to null
+warning(line 4641): c_str() approximated to null
+warning(line 4649): c_str() approximated to null
+warning(line 4692): cast to void dropped
+warning(line 4695): sizeof has no Java equivalent; emitted as 0
+warning(line 4720): c_str() approximated to null
+warning(line 4785): unsupported call target; emitted as-is
+warning(line 4806): unsupported call target; emitted as-is
+warning(line 4806): unsupported call target; emitted as-is
+warning(line 4812): unsupported call target; emitted as-is
+warning(line 4812): unsupported call target; emitted as-is
+warning(line 4818): unsupported call target; emitted as-is
+warning(line 4819): unsupported call target; emitted as-is
+warning(line 4822): unsupported call target; emitted as-is
+warning(line 4823): unsupported call target; emitted as-is
+warning(line 4845): unsupported call target; emitted as-is
+warning(line 4845): unsupported call target; emitted as-is
+warning(line 4914): unsupported call target; emitted as-is
+warning(line 4914): unsupported call target; emitted as-is
+warning(line 4915): unsupported call target; emitted as-is
+warning(line 4915): unsupported call target; emitted as-is
+warning(line 5024): lambda capture '&' dropped (Java captures effectively-final locals)
+warning(line 5127): c_str() approximated to null
+warning(line 5137): c_str() approximated to null
+warning(line 5143): lambda capture '&' dropped (Java captures effectively-final locals)
+warning(line 5158): lambda capture '&' dropped (Java captures effectively-final locals)
+warning(line 5218): braced init list used as a standalone expression
+warning(line 5219): braced init list used as a standalone expression
+warning(line 5220): braced init list used as a standalone expression
+warning(line 5221): braced init list used as a standalone expression
+warning(line 5222): braced init list used as a standalone expression
+warning(line 5241): braced init list used as a standalone expression
+warning(line 5242): braced init list used as a standalone expression
+warning(line 5243): braced init list used as a standalone expression
+warning(line 5312): lambda capture 'pThis' dropped (Java captures effectively-final locals)
+warning(line 5316): lambda capture 'pThis' dropped (Java captures effectively-final locals)
+warning(line 5391): c_str() approximated to null
+warning(line 5392): unsupported call target; emitted as-is
+warning(line 5393): unsupported call target; emitted as-is
+warning(line 5394): unsupported call target; emitted as-is
+warning(line 5396): c_str() approximated to null
+warning(line 5397): unsupported call target; emitted as-is
+warning(line 5398): unsupported call target; emitted as-is
+warning(line 5399): unsupported call target; emitted as-is
+warning(line 5425): c_str() approximated to null
+warning(line 5426): unsupported call target; emitted as-is
+warning(line 5428): unsupported call target; emitted as-is
+warning(line 5429): unsupported call target; emitted as-is
+warning(line 5432): unsupported call target; emitted as-is
+warning(line 5434): unsupported call target; emitted as-is
+warning(line 5507): free function 'ShowInputDialog' has no Java equivalent; kept as-is
+warning(line 5518): free function 'WideToUtf8' has no Java equivalent; kept as-is
+warning(line 5572): iterator begin()/end() unsupported; prefer range-for
+warning(line 5584): std::swap has no single-call Java equivalent
+warning(line 5594): std::swap has no single-call Java equivalent
+warning(line 5604): std::swap has no single-call Java equivalent
+warning(line 5615): std::swap has no single-call Java equivalent
+warning(line 5670): sizeof has no Java equivalent; emitted as 0
+warning(line 5723): unsupported call target; emitted as-is
+warning(line 5724): unsupported call target; emitted as-is
+warning(line 5766): unsupported call target; emitted as-is
+warning(line 5767): unsupported call target; emitted as-is
+warning(line 5769): unsupported call target; emitted as-is
+warning(line 5783): c_str() approximated to null
+warning(line 5796): c_str() approximated to null
+warning(line 5823): unsupported call target; emitted as-is
+warning(line 5824): unsupported call target; emitted as-is
+warning(line 5866): unsupported call target; emitted as-is
+warning(line 5912): unsupported call target; emitted as-is
+warning(line 5912): std::max used as expression
+warning(line 5936): c_str() approximated to null
+warning(line 5961): sizeof has no Java equivalent; emitted as 0
+warning(line 5982): sizeof has no Java equivalent; emitted as 0
+warning(line 6036): free function 'Help_Populate' has no Java equivalent; kept as-is
+warning(line 6064): sizeof has no Java equivalent; emitted as 0
+warning(line 6074): c_str() approximated to null
+warning(line 6121): sizeof has no Java equivalent; emitted as 0
+warning(line 6212): free function 'AnsiToWide' has no Java equivalent; kept as-is
+warning(line 6215): sizeof has no Java equivalent; emitted as 0
+warning(line 6222): c_str() approximated to null
+warning(line 6269): free function 'GetCacheSubDir' has no Java equivalent; kept as-is
+warning(line 6270): free function 'AnsiToWide' has no Java equivalent; kept as-is
+warning(line 6271): c_str() approximated to null
+warning(line 6275): free function 'GetCacheSubDir' has no Java equivalent; kept as-is
+warning(line 6276): free function 'AnsiToWide' has no Java equivalent; kept as-is
+warning(line 6277): c_str() approximated to null
+warning(line 6310): free function 'YXGui_QueryRichLinkTag' has no Java equivalent; kept as-is
+warning(line 6313): free function 'YXGui_SetPendingLinkTag' has no Java equivalent; kept as-is
+warning(line 6358): c_str() approximated to null
+warning(line 6359): free function 'YXGui_PushDroppedFiles' has no Java equivalent; kept as-is
+warning(line 6497): sizeof has no Java equivalent; emitted as 0
+warning(line 6547): free function 'GetCacheSubDir' has no Java equivalent; kept as-is
+warning(line 6548): free function 'AnsiToWide' has no Java equivalent; kept as-is
+warning(line 6554): cast to void dropped
+warning(line 6565): lambda capture 'this , wUrl , hHost , w , chh' dropped (Java captures effectively-final locals)
+warning(line 6574): lambda capture 'this , wUrl , w , chh' dropped (Java captures effectively-final locals)
+warning(line 6590): cast to void dropped
+warning(line 6596): c_str() approximated to null
+warning(line 6607): c_str() approximated to null
+warning(line 6610): c_str() approximated to null
+warning(line 6616): cast to void dropped
+warning(line 6702): lambda capture 'this , plugin' dropped (Java captures effectively-final locals)
+warning(line 6732): c_str() approximated to null
+warning(line 6768): c_str() approximated to null
+warning(line 6770): lambda capture 'this , plugin , seq' dropped (Java captures effectively-final locals)
+warning(line 6807): free function 'WideToUtf8' has no Java equivalent; kept as-is
+warning(line 6809): free function 'WideToUtf8' has no Java equivalent; kept as-is
+warning(line 6834): c_str() approximated to null
+warning(line 6836): lambda capture 'this , plugin , seq' dropped (Java captures effectively-final locals)
+warning(line 6856): free function 'WideToUtf8' has no Java equivalent; kept as-is
+warning(line 6888): cast to void dropped
+warning(line 6890): free function 'YXGui_ProcessStreamChunk' has no Java equivalent; kept as-is
+warning(line 6892): free function 'YXGui_FreeStreamChunk' has no Java equivalent; kept as-is
+warning(line 6953): c_str() approximated to null
+warning(line 7180): unsupported call target; emitted as-is
+warning(line 7180): std::max used as expression
+warning(line 7234): unsupported call target; emitted as-is
+warning(line 7235): unsupported call target; emitted as-is
+warning(line 7274): unsupported call target; emitted as-is
+warning(line 7274): std::max used as expression
+warning(line 7276): unsupported call target; emitted as-is
+warning(line 7276): std::max used as expression
+warning(line 7319): unsupported call target; emitted as-is
+warning(line 7319): std::max used as expression
+warning(line 7320): unsupported call target; emitted as-is
+warning(line 7320): std::max used as expression
+warning(line 7322): unsupported call target; emitted as-is
+warning(line 7322): std::max used as expression
+warning(line 7556): unsupported call target; emitted as-is
+warning(line 7556): std::max used as expression
+warning(line 4496): sizeof has no Java equivalent; emitted as 0
+warning(line 4525): sizeof has no Java equivalent; emitted as 0
+warning(line 65): declaration of 'YXGui_PushDroppedFiles' has no body; stub generated
+warning(line 71): declaration of 'YXGui_ProcessStreamChunk' has no body; stub generated
+warning(line 72): declaration of 'YXGui_FreeStreamChunk' has no body; stub generated
+warning(line 79): declaration of 'YXGui_QueryRichLinkTag' has no body; stub generated
+warning(line 80): declaration of 'YXGui_SetPendingLinkTag' has no body; stub generated
+warning(line 141): container op 'pop_back' approximated: remove
+warning(line 145): container op 'pop_back' approximated: remove
+warning(line 179): c_str() approximated to null
+warning(line 184): c_str() approximated to null
+warning(line 228): sizeof has no Java equivalent; emitted as 0
+warning(line 0): default-constructed 'InputDialogData' approximated as 'new InputDialogData()' assuming an implicit default constructor
+warning(line 250): c_str() approximated to null
+warning(line 353): c_str() approximated to null
+warning(line 357): c_str() approximated to null
+warning(line 362): c_str() approximated to null
+warning(line 368): c_str() approximated to null
+warning(line 370): c_str() approximated to null
+warning(line 384): free function 'GetExeDir' has no Java equivalent; kept as-is
+warning(line 386): c_str() approximated to null
+warning(line 389): c_str() approximated to null
+warning(line 429): sizeof has no Java equivalent; emitted as 0
+warning(line 441): c_str() approximated to null
+warning(line 446): c_str() approximated to null
+warning(line 465): free function 'AnsiToWide' has no Java equivalent; kept as-is
+warning(line 488): free function 'AnsiToWide' has no Java equivalent; kept as-is
+warning(line 506): std::string index write not supported (String is immutable)
+warning(line 521): free function 'Help_Xor' has no Java equivalent; kept as-is
+warning(line 526): free function 'Help_ReadRegistryFile' has no Java equivalent; kept as-is
+warning(line 577): free function 'Help_GetHelpText' has no Java equivalent; kept as-is
+warning(line 582): container op 'pop_back' approximated: remove
+warning(line 592): sizeof has no Java equivalent; emitted as 0
+warning(line 604): free function 'AnsiToWide' has no Java equivalent; kept as-is
+warning(line 606): c_str() approximated to null
+warning(line 3206): c_str() approximated to null
+warning(line 3244): free function 'ReadJsonStrField' has no Java equivalent; kept as-is
+warning(line 3249): free function 'IsVideoExt' has no Java equivalent; kept as-is
+warning(line 3249): free function 'IsImageExt' has no Java equivalent; kept as-is
+warning(line 3253): free function 'ReadJsonStrField' has no Java equivalent; kept as-is
+warning(line 3254): free function 'ReadJsonStrField' has no Java equivalent; kept as-is
+warning(line 3257): free function 'IsImageExt' has no Java equivalent; kept as-is
+warning(line 3266): free function 'IsImageExt' has no Java equivalent; kept as-is
+warning(line 4330): free function 'GetCacheSubDir' has no Java equivalent; kept as-is
+warning(line 7631): cast to void dropped

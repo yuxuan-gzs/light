@@ -1,0 +1,23 @@
+# 编译产物
+*.obj
+*.exp
+*.zip
+*.log
+
+# IDE 与构建输出
+.vs/
+x64/
+Debug/
+Release/
+ModMigrator/x64/
+ModMigrator/.vs/
+ToMCreatorForge/.vs/
+light/.vs/
+
+# 临时文件
+
+# 第三方库（按需）
+Full Port Network Packet Capture Tool/
+
+# 批处理脚本自身（如果不想提交）
+

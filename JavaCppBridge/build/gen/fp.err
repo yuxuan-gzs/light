@@ -1,0 +1,4 @@
+warning(line 95): enum -> int cast emitted as '.ordinal()'
+warning(line 0): default-constructed 'Accumulator' approximated as 'new Accumulator()' assuming an implicit default constructor
+warning(line 0): default-constructed 'Runner' approximated as 'new Runner()' assuming an implicit default constructor
+warning(line 134): value returned from main() dropped

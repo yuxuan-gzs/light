@@ -1,0 +1,193 @@
+--- a/Gui/YXGuiPlugin.h
++++ b/Gui/YXGuiPlugin.h
+@@ -16,7 +16,7 @@
+ #include <map>
+ #include <deque>
+ 
+-#include "PluginInterface.h" // 转发到 light 根目录共享的插件 ABI
++#include "../PluginInterface.h" // 明确使用 light 根目录共享的插件 ABI，避免同名转发头解析歧义
+ #include "JSPlugin.h"
+ #include "PermissionManager.h"
+ #include "JSWebViewBridge.h"
+--- a/PluginInterface.h
++++ b/PluginInterface.h
+@@ -26,6 +26,8 @@
+ // ============================================================
+ // 插件基类
+ // ============================================================
++class PluginUIManager;
++
+ class IPlugin {
+ public:
+     virtual ~IPlugin() = default;
+@@ -40,7 +42,7 @@
+     virtual void OnCommand(const std::string& cmd, const std::vector<std::string>& args) {}
+ 
+     // UI 集成（可选）
+-    virtual void SetUIManager(class PluginUIManager* ui) { m_ui = ui; }
++    virtual void SetUIManager(PluginUIManager* ui) { m_ui = ui; }
+ 
+ protected:
+     PluginUIManager* m_ui = nullptr;
+--- a/Gui/JSPlugin.h
++++ b/Gui/JSPlugin.h
+@@ -22,10 +22,12 @@
+ #include "YXExtension.h"
+ #include "ExtensionManager.h"
+ 
+-// QuickJS 实现类型在 JSPlugin.cpp 中包含 quickjs.h；公开头保持前置声明。
++// QuickJS 实现类型在 JSPlugin.cpp 中包含 quickjs.h；公开头只前置声明不透明类型。
++// 注意：不要前置声明 struct JSValue。QuickJS-NG 在 32 位构建中将 JSValue
++// 定义为 uint64_t（JS_NAN_BOXING），声明 struct JSValue 会与 typedef 冲突，
++// 并造成后续头文件/成员函数出现大量连锁语法错误。
+ struct JSRuntime;
+ struct JSContext;
+-struct JSValue;
+ 
+ using PermissionPromptFn = std::function<bool(
+     const std::wstring& pluginId,
+@@ -94,6 +96,7 @@
+     bool LoadBuiltin(const std::string& manifestJson, const std::string& entryJs);
+     void Unload();
+     bool IsLoaded() const { return m_loaded; }
++    bool IsPermanentlyAuthorized() const { return m_permanentAuth; }
+ 
+     void SetMetaInfo(const std::wstring& id, const std::wstring& name,
+         const std::wstring& version, const std::wstring& author,
+@@ -113,6 +116,9 @@
+     void SetPermissionPrompt(PermissionPromptFn fn) { m_permPrompt = std::move(fn); }
+ 
+     std::wstring GetId() const { return m_id; }
++    const std::wstring& GetVersion() const { return m_version; }
++    const std::wstring& GetFolderPath() const { return m_folderPath; }
++    std::vector<std::wstring> GetPluginList() const;
+     const std::wstring& GetName() const { return m_name; }
+     const std::wstring& GetIconEmoji() const { return m_iconEmoji; }
+     const std::map<std::wstring, HWND>& GetControls() const { return m_controls; }
+@@ -215,6 +221,7 @@
+     std::map<uint32_t, PendingHttpPromise> m_pendingHttp;
+ 
+ private:
++    int AllocControlId();
+     bool ParseManifestJson(const std::string& json);
+     bool ReadManifest(const std::wstring& folderPath);
+     bool InitRuntimeAndApis();
+--- a/Gui/JSPlugin.cpp
++++ b/Gui/JSPlugin.cpp
+@@ -23,7 +23,9 @@
+ #include <filesystem>
+ #include <thread>
+ #include <atomic>
++#include <algorithm>
+ #include <cstring>
++#include <wchar.h>
+ #include <cmath>
+ #include <set>
+ #include <map>
+@@ -293,6 +295,73 @@
+     m_description = description;
+     m_iconEmoji = iconEmoji.empty() ? L"🔌" : iconEmoji;
+     if (m_entryFile.empty()) m_entryFile = L"";
++}
++
++
++
++// 为子控件分配进程内唯一的控件 ID。控件 ID 需保持在 WM_COMMAND 常用的
++// 16 位范围内；使用原子计数器可避免多个插件在不同线程创建控件时发生竞争。
++int JSPlugin::AllocControlId() {
++    static std::atomic<unsigned int> s_nextControlId{ 10000 };
++    constexpr unsigned int kFirst = 10000;
++    constexpr unsigned int kRange = 50000; // 最后一个 ID 为 59999
++    const unsigned int n = s_nextControlId.fetch_add(1, std::memory_order_relaxed);
++    return static_cast<int>(kFirst + (n % kRange));
++}
++
++// 返回 Cache\\gui 下可发现的插件显示名称。对内置插件（没有 folderPath）也从
++// light.exe 所在目录定位 Cache\\gui；始终确保当前插件出现在列表中。
++std::vector<std::wstring> JSPlugin::GetPluginList() const {
++    std::vector<std::wstring> result;
++    fs::path pluginRoot;
++
++    if (!m_folderPath.empty()) {
++        pluginRoot = fs::path(m_folderPath).parent_path();
++    } else {
++        wchar_t exePath[MAX_PATH] = {};
++        const DWORD n = GetModuleFileNameW(nullptr, exePath, MAX_PATH);
++        if (n > 0 && n < MAX_PATH) {
++            pluginRoot = fs::path(exePath).parent_path() / L"Cache" / L"gui";
++        }
++    }
++
++    std::error_code ec;
++    if (!pluginRoot.empty() && fs::is_directory(pluginRoot, ec) && !ec) {
++        fs::directory_iterator it(pluginRoot, ec), end;
++        while (!ec && it != end) {
++            const fs::directory_entry entry = *it;
++            it.increment(ec);
++            if (ec || !entry.is_directory(ec) || ec) {
++                ec.clear();
++                continue;
++            }
++
++            const fs::path manifestPath = entry.path() / L"plugin.json";
++            if (!fs::is_regular_file(manifestPath, ec) || ec) {
++                ec.clear();
++                continue;
++            }
++
++            std::ifstream f(manifestPath, std::ios::binary);
++            if (!f.is_open()) continue;
++            const std::string json((std::istreambuf_iterator<char>(f)),
++                std::istreambuf_iterator<char>());
++
++            std::wstring displayName = JsonStr(json, "name");
++            if (displayName.empty()) displayName = JsonStr(json, "id");
++            if (displayName.empty()) displayName = entry.path().filename().wstring();
++            if (!displayName.empty() &&
++                std::find(result.begin(), result.end(), displayName) == result.end()) {
++                result.push_back(std::move(displayName));
++            }
++        }
++    }
++
++    if (!m_name.empty() &&
++        std::find(result.begin(), result.end(), m_name) == result.end()) {
++        result.push_back(m_name);
++    }
++    return result;
+ }
+ 
+ // 内置插件：从内存加载 manifest + 入口脚本（不依赖外部目录）
+@@ -1007,7 +1076,7 @@
+         // ---------- 3) 内容：齿轮图标 或 文字 ----------
+         wchar_t txt[128] = { 0 };
+         GetWindowTextW(hWnd, txt, 128);
+-        bool isGear = (wcsicmp(txt, L"gear") == 0);
++        bool isGear = (_wcsicmp(txt, L"gear") == 0);
+         Gdiplus::Color iconCol(
+             pressed ? 240 : (hover ? 225 : 200),
+             GetRValue(fg), GetGValue(fg), GetBValue(fg));
+--- a/COMPILE_FIX_V4.md
++++ b/COMPILE_FIX_V4.md
+@@ -0,0 +1,21 @@
++﻿# light.exe 第四轮编译错误修复
++
++## 本轮针对的错误
++
++这轮按 `粘贴的文本 (1)(6).txt` 的实际编译日志处理，不只是关闭警告：
++
++- `Gui/JSPlugin.cpp:1010` 的 `wcsicmp` 改为 MSVC 对应的 `_wcsicmp`，并显式包含 `<wchar.h>`。
++- `JSPlugin.h` 增加 `IsPermanentlyAuthorized()`、`GetVersion()`、`GetFolderPath()`、`GetPluginList()` 声明，解决实现代码调用了不存在的成员而引发的连锁错误。
++- 补充 `JSPlugin::AllocControlId()`，为原生控件分配原子递增的子控件 ID。
++- 实现 `GetPluginList()`：从当前插件目录的同级目录读取 `plugin.json` 的显示名；原生/内置插件则以 `light.exe` 目录下的 `Cache\gui` 为扫描位置，并确保当前插件名包含在结果中。
++- `Gui/YXGuiPlugin.h` 改为显式包含 `../PluginInterface.h`，避免 `Gui/PluginInterface.h` 与根目录同名 ABI 头之间的查找歧义；根 ABI 中另加显式 `PluginUIManager` 前置声明。
++
++## 应用
++
++本 ZIP 是以用户最新上传的 `当前代码.zip` 为基础的完整源码快照。可以整体备份后覆盖，也可以使用同包中的 `light_compile_fix_v4.patch` 只合并差异。
++
++在 Visual Studio 中对原有 `x64 | Release` 配置执行“清理解决方案”再“重新生成”。
++
++## 验证边界
++
++已检查修改文件的文本结构、相关成员声明/定义对应关系，以及 `.vcxproj` / `.targets` XML 是否有效。当前执行环境没有 Windows SDK、MSVC 和 WebView2 SDK，因此没有完成真实 Windows 编译；不能据此宣称已经生成或验证 `light.exe`。若仍报错，请发最新日志中最前面的真实 C/C++ 编译错误，以便继续针对实际代码修复。

@@ -1,0 +1,613 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="源文件\Gui">
+      <UniqueIdentifier>{4267bda4-b687-4fa4-9215-5d028e66285f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\zlib-1.3.2\adler32.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\zlib-1.3.2\compress.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\zlib-1.3.2\crc32.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\zlib-1.3.2\deflate.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\zlib-1.3.2\gzclose.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\zlib-1.3.2\gzlib.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\zlib-1.3.2\gzread.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\zlib-1.3.2\gzwrite.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\zlib-1.3.2\infback.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\zlib-1.3.2\inffast.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\zlib-1.3.2\inflate.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\zlib-1.3.2\inftrees.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\zlib-1.3.2\trees.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\zlib-1.3.2\uncompr.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\zlib-1.3.2\zutil.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\7zAlloc.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\7zArcIn.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\7zBuf.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\7zBuf2.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\7zCrc.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\7zCrcOpt.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\7zDec.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\7zFile.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\7zStream.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\Aes.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\AesOpt.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\Alloc.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\Bcj2.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\Bcj2Enc.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\Bra.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\Bra86.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\BraIA64.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\CpuArch.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\Delta.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\DllSecur.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\LzFind.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\LzFindMt.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\LzFindOpt.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\Lzma2Dec.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\Lzma2DecMt.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\Lzma2Enc.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\Lzma86Dec.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\Lzma86Enc.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\LzmaDec.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\LzmaEnc.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\LzmaLib.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\MtCoder.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\MtDec.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\Ppmd7.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\Ppmd7Dec.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\Ppmd7Enc.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\Sha256.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\Sha256Opt.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\Sort.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\SwapBytes.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\Threads.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\Xz.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\XzCrc64.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\XzCrc64Opt.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\XzDec.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\XzEnc.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lzma\C\XzIn.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\zlib-1.3.2\contrib\minizip\ioapi.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\zlib-1.3.2\contrib\minizip\unzip.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\zlib-1.3.2\contrib\minizip\zip.c">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="light.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="LightApi.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="NetworkInterceptor.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="NotifyWindow.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="PluginManager.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="PluginTemplateGenerator.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Gui\ApiAiNative.cpp">
+      <Filter>源文件\Gui</Filter>
+    </ClCompile>
+    <ClCompile Include="Gui\ExtensionManager.cpp">
+      <Filter>源文件\Gui</Filter>
+    </ClCompile>
+    <ClCompile Include="Gui\JSPlugin.cpp">
+      <Filter>源文件\Gui</Filter>
+    </ClCompile>
+    <ClCompile Include="Gui\PermissionManager.cpp">
+      <Filter>源文件\Gui</Filter>
+    </ClCompile>
+    <ClCompile Include="Gui\PluginCenter.cpp">
+      <Filter>源文件\Gui</Filter>
+    </ClCompile>
+    <ClCompile Include="Gui\YXGuiPlugin.cpp">
+      <Filter>源文件\Gui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ProjectDir)quickjs.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ProjectDir)quickjs-libc.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ProjectDir)dtoa.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ProjectDir)libregexp.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ProjectDir)libunicode.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\zlib-1.3.2\.cmake-format.yaml">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="..\..\..\zlib-1.3.2\BUILD.bazel">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="..\..\..\zlib-1.3.2\ChangeLog">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="..\..\..\zlib-1.3.2\configure">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="..\..\..\zlib-1.3.2\FAQ">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="..\..\..\zlib-1.3.2\INDEX">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="..\..\..\zlib-1.3.2\LICENSE">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="..\..\..\zlib-1.3.2\make_vms.com">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="..\..\..\zlib-1.3.2\Makefile">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="..\..\..\zlib-1.3.2\Makefile.in">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="..\..\..\zlib-1.3.2\MODULE.bazel">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="..\..\..\zlib-1.3.2\README">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="..\..\..\zlib-1.3.2\README-cmake.md">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="..\..\..\zlib-1.3.2\zconf.h.in">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="..\..\..\zlib-1.3.2\zlib.3">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="..\..\..\zlib-1.3.2\zlib.3.pdf">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="..\..\..\zlib-1.3.2\zlib.map">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="..\..\..\zlib-1.3.2\zlib.pc.cmakein">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="..\..\..\zlib-1.3.2\zlib.pc.in">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="..\..\..\zlib-1.3.2\zlibConfig.cmake.in">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="..\..\..\lzma\C\7zip_gcc_c.mak">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="..\..\..\lzma\C\Asm_c.mak">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="..\..\..\lzma\C\var_clang.mak">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="..\..\..\lzma\C\var_clang_arm64.mak">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="..\..\..\lzma\C\var_clang_x64.mak">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="..\..\..\lzma\C\var_clang_x86.mak">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="..\..\..\lzma\C\var_gcc.mak">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="..\..\..\lzma\C\var_gcc_arm64.mak">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="..\..\..\lzma\C\var_gcc_x64.mak">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="..\..\..\lzma\C\var_gcc_x86.mak">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="..\..\..\lzma\C\var_mac_arm64.mak">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="..\..\..\lzma\C\var_mac_x64.mak">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="..\..\..\lzma\C\warn_clang.mak">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="..\..\..\lzma\C\warn_clang_mac.mak">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="..\..\..\lzma\C\warn_gcc.mak">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="tests\NetworkInterceptorTests\NetworkInterceptorTests.vcxproj" />
+    <None Include="Gui\BUILTIN_GUI_INTEGRATION.md">
+      <Filter>源文件\Gui</Filter>
+    </None>
+    <None Include="light_builtin_gui.targets" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\..\..\zlib-1.3.2\CMakeLists.txt">
+      <Filter>头文件</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\zlib-1.3.2\crc32.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\zlib-1.3.2\deflate.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\zlib-1.3.2\gzguts.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\zlib-1.3.2\inffast.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\zlib-1.3.2\inffixed.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\zlib-1.3.2\inflate.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\zlib-1.3.2\inftrees.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\zlib-1.3.2\trees.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\zlib-1.3.2\zconf.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\zlib-1.3.2\zlib.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\zlib-1.3.2\zutil.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\7z.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\7zAlloc.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\7zBuf.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\7zCrc.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\7zFile.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\7zTypes.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\7zVersion.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\7zWindows.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\Aes.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\Alloc.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\Bcj2.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\Bra.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\Compiler.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\CpuArch.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\Delta.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\DllSecur.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\LzFind.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\LzFindMt.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\LzHash.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\Lzma2Dec.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\Lzma2DecMt.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\Lzma2Enc.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\Lzma86.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\LzmaDec.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\LzmaEnc.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\LzmaLib.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\MtCoder.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\MtDec.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\Ppmd.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\Ppmd7.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\Precomp.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\RotateDefs.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\Sha256.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\Sort.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\SwapBytes.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\Threads.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\Xz.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\XzCrc64.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\XzEnc.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SecurityCore.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="LightApi.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="YXGuiToggleLoader.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="YXGuiToggle.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="winwrap.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="YXGuiPlugin\winwrap.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="NetworkInterceptor.h">
+      <Filter>源文件</Filter>
+    </ClInclude>
+    <ClInclude Include="NotifyWindow.h">
+      <Filter>源文件</Filter>
+    </ClInclude>
+    <ClInclude Include="PluginInterface.h">
+      <Filter>源文件</Filter>
+    </ClInclude>
+    <ClInclude Include="PluginManager.h">
+      <Filter>源文件</Filter>
+    </ClInclude>
+    <ClInclude Include="PluginTemplateGenerator.h">
+      <Filter>源文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Gui\ApiAiNative.h">
+      <Filter>源文件\Gui</Filter>
+    </ClInclude>
+    <ClInclude Include="Gui\ExtensionManager.h">
+      <Filter>源文件\Gui</Filter>
+    </ClInclude>
+    <ClInclude Include="Gui\JSPlugin.h">
+      <Filter>源文件\Gui</Filter>
+    </ClInclude>
+    <ClInclude Include="Gui\JSWebViewBridge.h">
+      <Filter>源文件\Gui</Filter>
+    </ClInclude>
+    <ClInclude Include="Gui\PermissionManager.h">
+      <Filter>源文件\Gui</Filter>
+    </ClInclude>
+    <ClInclude Include="Gui\PluginCenter.h">
+      <Filter>源文件\Gui</Filter>
+    </ClInclude>
+    <ClInclude Include="Gui\PluginInterface.h">
+      <Filter>源文件\Gui</Filter>
+    </ClInclude>
+    <ClInclude Include="Gui\winwrap.h">
+      <Filter>源文件\Gui</Filter>
+    </ClInclude>
+    <ClInclude Include="Gui\YXExtension.h">
+      <Filter>源文件\Gui</Filter>
+    </ClInclude>
+    <ClInclude Include="Gui\YXGuiPlugin.h">
+      <Filter>源文件\Gui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lzma\C\resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="..\..\..\zlib-1.3.2\treebuild.xml">
+      <Filter>头文件</Filter>
+    </Xml>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\..\lzma\C\7zVersion.rc">
+      <Filter>头文件</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

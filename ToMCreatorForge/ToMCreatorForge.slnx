@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="ToMCreatorForge/ToMCreatorForge.vcxproj" Id="f52c8bc7-ea47-4d23-9cdb-b6151c1c8653" />
+</Solution>

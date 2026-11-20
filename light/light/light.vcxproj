@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>18.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{2638232a-64fa-442c-b02f-daae8d990edb}</ProjectGuid>
+    <RootNamespace>light</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/std:c11 %(AdditionalOptions)</AdditionalOptions>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Manifest>
+      <EnableSegmentHeap>true</EnableSegmentHeap>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Manifest>
+      <EnableSegmentHeap>true</EnableSegmentHeap>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>
+      </PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>D:\zlib-1.3.2;D:\zlib-1.3.2\contrib\minizip;D:\lzma\C;$(ProjectDir)YXGuiPlugin</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>D:\zlib-1.3.2;D:\zlib-1.3.2\contrib\minizip</AdditionalLibraryDirectories>
+      <ModuleDefinitionFile>LightApi.def</ModuleDefinitionFile>
+    </Link>
+    <Manifest>
+      <EnableSegmentHeap>true</EnableSegmentHeap>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>
+      </PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>D:\zlib-1.3.2;D:\zlib-1.3.2\contrib\minizip;D:\lzma\C;$(ProjectDir)YXGuiPlugin</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>D:\zlib-1.3.2;D:\zlib-1.3.2\contrib\minizip</AdditionalLibraryDirectories>
+      <ModuleDefinitionFile>LightApi.def</ModuleDefinitionFile>
+    </Link>
+    <Manifest>
+      <EnableSegmentHeap>true</EnableSegmentHeap>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\lzma\C\7zAlloc.c" />
+    <ClCompile Include="..\..\..\lzma\C\7zArcIn.c" />
+    <ClCompile Include="..\..\..\lzma\C\7zBuf.c" />
+    <ClCompile Include="..\..\..\lzma\C\7zBuf2.c" />
+    <ClCompile Include="..\..\..\lzma\C\7zCrc.c" />
+    <ClCompile Include="..\..\..\lzma\C\7zCrcOpt.c" />
+    <ClCompile Include="..\..\..\lzma\C\7zDec.c" />
+    <ClCompile Include="..\..\..\lzma\C\7zFile.c" />
+    <ClCompile Include="..\..\..\lzma\C\7zStream.c" />
+    <ClCompile Include="..\..\..\lzma\C\Aes.c" />
+    <ClCompile Include="..\..\..\lzma\C\AesOpt.c" />
+    <ClCompile Include="..\..\..\lzma\C\Alloc.c" />
+    <ClCompile Include="..\..\..\lzma\C\Bcj2.c" />
+    <ClCompile Include="..\..\..\lzma\C\Bcj2Enc.c" />
+    <ClCompile Include="..\..\..\lzma\C\Bra.c" />
+    <ClCompile Include="..\..\..\lzma\C\Bra86.c" />
+    <ClCompile Include="..\..\..\lzma\C\BraIA64.c" />
+    <ClCompile Include="..\..\..\lzma\C\CpuArch.c" />
+    <ClCompile Include="..\..\..\lzma\C\Delta.c" />
+    <ClCompile Include="..\..\..\lzma\C\DllSecur.c" />
+    <ClCompile Include="..\..\..\lzma\C\LzFind.c" />
+    <ClCompile Include="..\..\..\lzma\C\LzFindMt.c" />
+    <ClCompile Include="..\..\..\lzma\C\LzFindOpt.c" />
+    <ClCompile Include="..\..\..\lzma\C\Lzma2Dec.c" />
+    <ClCompile Include="..\..\..\lzma\C\Lzma2DecMt.c" />
+    <ClCompile Include="..\..\..\lzma\C\Lzma2Enc.c" />
+    <ClCompile Include="..\..\..\lzma\C\Lzma86Dec.c" />
+    <ClCompile Include="..\..\..\lzma\C\Lzma86Enc.c" />
+    <ClCompile Include="..\..\..\lzma\C\LzmaDec.c" />
+    <ClCompile Include="..\..\..\lzma\C\LzmaEnc.c" />
+    <ClCompile Include="..\..\..\lzma\C\LzmaLib.c" />
+    <ClCompile Include="..\..\..\lzma\C\MtCoder.c" />
+    <ClCompile Include="..\..\..\lzma\C\MtDec.c" />
+    <ClCompile Include="..\..\..\lzma\C\Ppmd7.c" />
+    <ClCompile Include="..\..\..\lzma\C\Ppmd7Dec.c" />
+    <ClCompile Include="..\..\..\lzma\C\Ppmd7Enc.c" />
+    <ClCompile Include="..\..\..\lzma\C\Sha256.c" />
+    <ClCompile Include="..\..\..\lzma\C\Sha256Opt.c" />
+    <ClCompile Include="..\..\..\lzma\C\Sort.c" />
+    <ClCompile Include="..\..\..\lzma\C\SwapBytes.c" />
+    <ClCompile Include="..\..\..\lzma\C\Threads.c" />
+    <ClCompile Include="..\..\..\lzma\C\Xz.c" />
+    <ClCompile Include="..\..\..\lzma\C\XzCrc64.c" />
+    <ClCompile Include="..\..\..\lzma\C\XzCrc64Opt.c" />
+    <ClCompile Include="..\..\..\lzma\C\XzDec.c" />
+    <ClCompile Include="..\..\..\lzma\C\XzEnc.c" />
+    <ClCompile Include="..\..\..\lzma\C\XzIn.c" />
+    <ClCompile Include="..\..\..\zlib-1.3.2\adler32.c" />
+    <ClCompile Include="..\..\..\zlib-1.3.2\compress.c" />
+    <ClCompile Include="..\..\..\zlib-1.3.2\contrib\minizip\ioapi.c" />
+    <ClCompile Include="..\..\..\zlib-1.3.2\contrib\minizip\unzip.c" />
+    <ClCompile Include="..\..\..\zlib-1.3.2\contrib\minizip\zip.c" />
+    <ClCompile Include="..\..\..\zlib-1.3.2\crc32.c" />
+    <ClCompile Include="..\..\..\zlib-1.3.2\deflate.c" />
+    <ClCompile Include="..\..\..\zlib-1.3.2\gzclose.c" />
+    <ClCompile Include="..\..\..\zlib-1.3.2\gzlib.c" />
+    <ClCompile Include="..\..\..\zlib-1.3.2\gzread.c" />
+    <ClCompile Include="..\..\..\zlib-1.3.2\gzwrite.c" />
+    <ClCompile Include="..\..\..\zlib-1.3.2\infback.c" />
+    <ClCompile Include="..\..\..\zlib-1.3.2\inffast.c" />
+    <ClCompile Include="..\..\..\zlib-1.3.2\inflate.c" />
+    <ClCompile Include="..\..\..\zlib-1.3.2\inftrees.c" />
+    <ClCompile Include="..\..\..\zlib-1.3.2\trees.c" />
+    <ClCompile Include="..\..\..\zlib-1.3.2\uncompr.c" />
+    <ClCompile Include="..\..\..\zlib-1.3.2\zutil.c" />
+    <ClCompile Include="Gui\ApiAiNative.cpp" />
+    <ClCompile Include="Gui\ExtensionManager.cpp" />
+    <ClCompile Include="Gui\GuiDllStore.cpp" />
+    <ClCompile Include="Gui\JSPlugin.cpp" />
+    <ClCompile Include="Gui\PermissionManager.cpp" />
+    <ClCompile Include="Gui\PluginCenter.cpp" />
+    <ClCompile Include="Gui\YXGuiPlugin.cpp" />
+    <ClCompile Include="light.cpp" />
+    <ClCompile Include="LightApi.cpp" />
+    <ClCompile Include="NetworkInterceptor.cpp" />
+    <ClCompile Include="NotifyWindow.cpp" />
+    <ClCompile Include="PluginManager.cpp" />
+    <ClCompile Include="PluginTemplateGenerator.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\lzma\C\7zip_gcc_c.mak" />
+    <None Include="..\..\..\lzma\C\Asm_c.mak" />
+    <None Include="..\..\..\lzma\C\var_clang.mak" />
+    <None Include="..\..\..\lzma\C\var_clang_arm64.mak" />
+    <None Include="..\..\..\lzma\C\var_clang_x64.mak" />
+    <None Include="..\..\..\lzma\C\var_clang_x86.mak" />
+    <None Include="..\..\..\lzma\C\var_gcc.mak" />
+    <None Include="..\..\..\lzma\C\var_gcc_arm64.mak" />
+    <None Include="..\..\..\lzma\C\var_gcc_x64.mak" />
+    <None Include="..\..\..\lzma\C\var_gcc_x86.mak" />
+    <None Include="..\..\..\lzma\C\var_mac_arm64.mak" />
+    <None Include="..\..\..\lzma\C\var_mac_x64.mak" />
+    <None Include="..\..\..\lzma\C\warn_clang.mak" />
+    <None Include="..\..\..\lzma\C\warn_clang_mac.mak" />
+    <None Include="..\..\..\lzma\C\warn_gcc.mak" />
+    <None Include="..\..\..\zlib-1.3.2\.cmake-format.yaml" />
+    <None Include="..\..\..\zlib-1.3.2\BUILD.bazel" />
+    <None Include="..\..\..\zlib-1.3.2\ChangeLog" />
+    <None Include="..\..\..\zlib-1.3.2\configure" />
+    <None Include="..\..\..\zlib-1.3.2\FAQ" />
+    <None Include="..\..\..\zlib-1.3.2\INDEX" />
+    <None Include="..\..\..\zlib-1.3.2\LICENSE" />
+    <None Include="..\..\..\zlib-1.3.2\Makefile" />
+    <None Include="..\..\..\zlib-1.3.2\Makefile.in" />
+    <None Include="..\..\..\zlib-1.3.2\make_vms.com" />
+    <None Include="..\..\..\zlib-1.3.2\MODULE.bazel" />
+    <None Include="..\..\..\zlib-1.3.2\README" />
+    <None Include="..\..\..\zlib-1.3.2\README-cmake.md" />
+    <None Include="..\..\..\zlib-1.3.2\zconf.h.in" />
+    <None Include="..\..\..\zlib-1.3.2\zlib.3" />
+    <None Include="..\..\..\zlib-1.3.2\zlib.3.pdf" />
+    <None Include="..\..\..\zlib-1.3.2\zlib.map" />
+    <None Include="..\..\..\zlib-1.3.2\zlib.pc.cmakein" />
+    <None Include="..\..\..\zlib-1.3.2\zlib.pc.in" />
+    <None Include="..\..\..\zlib-1.3.2\zlibConfig.cmake.in" />
+    <None Include="Gui\BUILTIN_GUI_INTEGRATION.md" />
+    <None Include="light_builtin_gui.targets" />
+    <None Include="tests\NetworkInterceptorTests\NetworkInterceptorTests.vcxproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\..\..\zlib-1.3.2\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\lzma\C\7z.h" />
+    <ClInclude Include="..\..\..\lzma\C\7zAlloc.h" />
+    <ClInclude Include="..\..\..\lzma\C\7zBuf.h" />
+    <ClInclude Include="..\..\..\lzma\C\7zCrc.h" />
+    <ClInclude Include="..\..\..\lzma\C\7zFile.h" />
+    <ClInclude Include="..\..\..\lzma\C\7zTypes.h" />
+    <ClInclude Include="..\..\..\lzma\C\7zVersion.h" />
+    <ClInclude Include="..\..\..\lzma\C\7zWindows.h" />
+    <ClInclude Include="..\..\..\lzma\C\Aes.h" />
+    <ClInclude Include="..\..\..\lzma\C\Alloc.h" />
+    <ClInclude Include="..\..\..\lzma\C\Bcj2.h" />
+    <ClInclude Include="..\..\..\lzma\C\Bra.h" />
+    <ClInclude Include="..\..\..\lzma\C\Compiler.h" />
+    <ClInclude Include="..\..\..\lzma\C\CpuArch.h" />
+    <ClInclude Include="..\..\..\lzma\C\Delta.h" />
+    <ClInclude Include="..\..\..\lzma\C\DllSecur.h" />
+    <ClInclude Include="..\..\..\lzma\C\LzFind.h" />
+    <ClInclude Include="..\..\..\lzma\C\LzFindMt.h" />
+    <ClInclude Include="..\..\..\lzma\C\LzHash.h" />
+    <ClInclude Include="..\..\..\lzma\C\Lzma2Dec.h" />
+    <ClInclude Include="..\..\..\lzma\C\Lzma2DecMt.h" />
+    <ClInclude Include="..\..\..\lzma\C\Lzma2Enc.h" />
+    <ClInclude Include="..\..\..\lzma\C\Lzma86.h" />
+    <ClInclude Include="..\..\..\lzma\C\LzmaDec.h" />
+    <ClInclude Include="..\..\..\lzma\C\LzmaEnc.h" />
+    <ClInclude Include="..\..\..\lzma\C\LzmaLib.h" />
+    <ClInclude Include="..\..\..\lzma\C\MtCoder.h" />
+    <ClInclude Include="..\..\..\lzma\C\MtDec.h" />
+    <ClInclude Include="..\..\..\lzma\C\Ppmd.h" />
+    <ClInclude Include="..\..\..\lzma\C\Ppmd7.h" />
+    <ClInclude Include="..\..\..\lzma\C\Precomp.h" />
+    <ClInclude Include="..\..\..\lzma\C\resource.h" />
+    <ClInclude Include="..\..\..\lzma\C\RotateDefs.h" />
+    <ClInclude Include="..\..\..\lzma\C\Sha256.h" />
+    <ClInclude Include="..\..\..\lzma\C\Sort.h" />
+    <ClInclude Include="..\..\..\lzma\C\SwapBytes.h" />
+    <ClInclude Include="..\..\..\lzma\C\Threads.h" />
+    <ClInclude Include="..\..\..\lzma\C\Xz.h" />
+    <ClInclude Include="..\..\..\lzma\C\XzCrc64.h" />
+    <ClInclude Include="..\..\..\lzma\C\XzEnc.h" />
+    <ClInclude Include="..\..\..\zlib-1.3.2\crc32.h" />
+    <ClInclude Include="..\..\..\zlib-1.3.2\deflate.h" />
+    <ClInclude Include="..\..\..\zlib-1.3.2\gzguts.h" />
+    <ClInclude Include="..\..\..\zlib-1.3.2\inffast.h" />
+    <ClInclude Include="..\..\..\zlib-1.3.2\inffixed.h" />
+    <ClInclude Include="..\..\..\zlib-1.3.2\inflate.h" />
+    <ClInclude Include="..\..\..\zlib-1.3.2\inftrees.h" />
+    <ClInclude Include="..\..\..\zlib-1.3.2\trees.h" />
+    <ClInclude Include="..\..\..\zlib-1.3.2\zconf.h" />
+    <ClInclude Include="..\..\..\zlib-1.3.2\zlib.h" />
+    <ClInclude Include="..\..\..\zlib-1.3.2\zutil.h" />
+    <ClInclude Include="Gui\ApiAiNative.h" />
+    <ClInclude Include="Gui\ExtensionManager.h" />
+    <ClInclude Include="Gui\GuiDllStore.h" />
+    <ClInclude Include="Gui\JSPlugin.h" />
+    <ClInclude Include="Gui\JSWebViewBridge.h" />
+    <ClInclude Include="Gui\PermissionManager.h" />
+    <ClInclude Include="Gui\PluginCenter.h" />
+    <ClInclude Include="Gui\PluginInterface.h" />
+    <ClInclude Include="Gui\winwrap.h" />
+    <ClInclude Include="Gui\YXExtension.h" />
+    <ClInclude Include="Gui\YXGuiPlugin.h" />
+    <ClInclude Include="LightApi.h" />
+    <ClInclude Include="NetworkInterceptor.h" />
+    <ClInclude Include="NotifyWindow.h" />
+    <ClInclude Include="PluginInterface.h" />
+    <ClInclude Include="PluginManager.h" />
+    <ClInclude Include="PluginTemplateGenerator.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="winwrap.h" />
+    <ClInclude Include="YXGuiPlugin\winwrap.h" />
+    <ClInclude Include="YXGuiToggleLoader.h" />
+    <ClInclude Include="YXGuiToggle.h" />
+    <ClInclude Include="SecurityCore.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="..\..\..\zlib-1.3.2\treebuild.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="light.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="cmd.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="WebView2LoaderStatic.lib" />
+  </ItemGroup>
+  <Import Project="$(ProjectDir)light_builtin_gui.targets" />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
