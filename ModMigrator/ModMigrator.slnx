@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="ModMigrator/ModMigrator.vcxproj" Id="a8904c25-4ec2-419d-8132-55907e1a069e" />
+</Solution>

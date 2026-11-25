@@ -1,0 +1,36 @@
+{
+    "functions": [
+        {
+            "description": "Get the file size",
+            "name": "get_file_size",
+            "params": "const char* path",
+            "returnType": "int",
+            "signature": "int get_file_size(const char* path)",
+            "translation": "获取文件大小"
+        },
+        {
+            "description": "Open and read all data",
+            "name": "open_and_read",
+            "params": "const char* name",
+            "returnType": "char *",
+            "signature": "char * open_and_read(const char* name)",
+            "translation": "打开and读取"
+        },
+        {
+            "description": "",
+            "name": "init_buffer",
+            "params": "void* buf, int size",
+            "returnType": "void",
+            "signature": "void init_buffer(void* buf, int size)",
+            "translation": "初始化缓冲区"
+        }
+    ],
+    "language": "简体中文",
+    "locale": "zh-CN",
+    "name": "mylib",
+    "strings": {
+        "get_file_size": "获取文件大小",
+        "init_buffer": "初始化缓冲区",
+        "open_and_read": "打开and读取"
+    }
+}

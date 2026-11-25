@@ -1,0 +1,661 @@
+// LoaderInstall.cpp — Fabric / Quilt / Forge 加载器安装器实现
+#include "LoaderInstall.h"
+#include "Http.h"
+#include "Json.h"
+#include "LauncherCore.h"
+#include "JavaDetect.h"
+
+#include <filesystem>
+#include <fstream>
+#include <sstream>
+#include <cstdio>
+#include <algorithm>
+#include <windows.h>
+
+namespace fs = std::filesystem;
+
+namespace loader {
+
+static const char* kFabricMeta = "https://meta.fabricmc.net/v2";
+static const char* kQuiltMeta  = "https://meta.quiltmc.org/v3";
+static const char* kFabricMaven = "https://maven.fabricmc.net/";
+static const char* kQuiltMaven  = "https://maven.quiltmc.org/repository/release/";
+// NeoForge 官方源 maven.neoforged.net 在国内常不可达，改用 BMCLAPI 镜像
+static const char* kNeoForgeMaven = "https://bmclapi2.bangbang93.com/maven/net/neoforged/neoforge/";
+
+static const char* metaBase(bool quilt) { return quilt ? kQuiltMeta : kFabricMeta; }
+static const char* mavenBase(bool quilt) { return quilt ? kQuiltMaven : kFabricMaven; }
+
+// 该 MC 版本装加载器需要的 Java 主版本。
+// 1.16.5 及以下 → 8（installer 用 17+ 跑会 UnsupportedClassVersionError / 直接崩）
+// 1.17 ~ 1.20.4 → 17；1.20.5+ → 21
+int JavaMajorForMc(const std::string& mcVersion) {
+    int minor = 0, patch = 0;
+    int n = sscanf(mcVersion.c_str(), "1.%d.%d", &minor, &patch);
+    if (n < 1 || minor <= 0) return 17;      // 快照等认不出的按现代版本处理
+    if (minor >= 21) return 21;
+    if (minor == 20 && patch >= 5) return 21;
+    if (minor >= 17) return 17;
+    return 8;
+}
+
+// 给 installer 挑 Java：大版本不对宁可直接报错，也不要拿 21 去跑 1.12.2 的 installer
+std::string PickInstallerJava(const std::string& mcPart, const std::string& prefer,
+                              std::string& err) {
+    if (!prefer.empty()) return prefer;
+    const int need = JavaMajorForMc(mcPart);
+    if (need <= 8) {
+        auto j8 = java::DetectExact(8);
+        if (!j8.path.empty()) return j8.path;
+        err = "安装 " + mcPart + " 的加载器需要 Java 8（用 17/21 运行 installer 会直接崩），"
+              "本机没找到 Java 8。请到「全局设置 → Java」指定一个 Java 8 的 javaw.exe。";
+        return "";
+    }
+    bool satisfied = false;
+    auto jr = java::DetectBest(need, &satisfied);
+    // 装了正好这个版本的 Java 就优先用它（installer 对过高版本也可能不兼容，21 别用 25）
+    auto exact = java::DetectExact(need);
+    if (!exact.path.empty()) return exact.path;
+    if (satisfied && !jr.path.empty()) return jr.path;
+    err = "安装 " + mcPart + " 的加载器需要 Java " + std::to_string(need) +
+          " 或更高版本，本机没找到。请到「全局设置 → Java」指定 Java 路径。";
+    return "";
+}
+
+// 简单 URL 编码（保留 RFC3986 非保留字符）
+static std::string urlEncode(const std::string& s) {
+    static const char* hex = "0123456789ABCDEF";
+    std::string out;
+    for (unsigned char c : s) {
+        if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
+            (c >= '0' && c <= '9') || c == '-' || c == '_' || c == '.' || c == '~') {
+            out += (char)c;
+        } else {
+            out += '%';
+            out += hex[c >> 4];
+            out += hex[c & 0xF];
+        }
+    }
+    return out;
+}
+
+std::vector<LoaderVersion> FetchVersions(const std::string& mcVersion,
+                                         bool quilt, std::string& err) {
+    std::vector<LoaderVersion> out;
+    std::string url = std::string(metaBase(quilt)) + "/versions/loader/" + urlEncode(mcVersion);
+    http::Response r = http::Get(url, 30000);
+    if (r.status != 200) {
+        err = "获取加载器版本失败 (HTTP " + std::to_string(r.status) + "): " + r.error;
+        return out;
+    }
+    try {
+        json::Value arr = json::parse(r.body);
+        for (size_t i = 0; i < arr.size(); ++i) {
+            const json::Value& e = arr.at(i);
+            const json::Value& lv = e.get("loader");
+            LoaderVersion v;
+            if (lv.isObject()) {          // Fabric: {loader:{version,stable},...}
+                v.version = lv.get("version").asString();
+                v.stable = lv.get("stable").asBool();
+            } else {                       // Quilt 直接: {version,stable,...}
+                v.version = e.get("version").asString();
+                v.stable = e.get("stable").asBool();
+            }
+            if (!v.version.empty()) out.push_back(v);
+        }
+    } catch (const std::exception& e) {
+        err = std::string("解析加载器版本失败: ") + e.what();
+        out.clear();
+    }
+    return out;
+}
+
+std::string VersionId(const std::string& mcVersion,
+                      const std::string& loaderVersion, bool quilt) {
+    return (quilt ? "quilt-loader-" : "fabric-loader-") + loaderVersion + "-" + mcVersion;
+}
+
+static bool fileExists(const std::string& p) {
+    std::error_code ec;
+    return fs::exists(fs::u8path(p), ec) && !ec;
+}
+
+// 下载，失败自动回退到 BMCLAPI 镜像（HMCL 式多源）
+static bool downloadFallback(const std::string& url, const std::string& dest,
+                             const std::string* sha1, std::string& err) {
+    std::vector<std::string> urls;
+    urls.push_back(url);
+    static const struct { const char* from; const char* to; } maps[] = {
+        {"https://maven.fabricmc.net/", "https://bmclapi2.bangbang93.com/maven/"},
+        {"https://maven.quiltmc.org/repository/release/", "https://bmclapi2.bangbang93.com/maven/"},
+        {"https://maven.minecraftforge.net/", "https://bmclapi2.bangbang93.com/maven/"},
+        {"https://maven.neoforged.net/releases/", "https://bmclapi2.bangbang93.com/maven/"},
+        {"https://bmclapi2.bangbang93.com/maven/net/neoforged/neoforge/", "https://maven.neoforged.net/releases/net/neoforged/neoforge/"},
+        {"https://bmclapi2.bangbang93.com/maven/net/neoforged/forge/", "https://maven.neoforged.net/releases/net/neoforged/forge/"},
+    };
+    for (auto& m : maps) {
+        if (url.rfind(m.from, 0) == 0) {
+            urls.push_back(m.to + url.substr(strlen(m.from)));
+            break;
+        }
+    }
+    for (auto& u : urls) {
+        http::DownloadResult r = http::Download(u, dest, nullptr, 120000, sha1);
+        if (r.ok) return true;
+        err = r.error;
+    }
+    return false;
+}
+
+static std::string mavenPathOf(const std::string& name) {
+    std::string g, a, v, cls;
+    mc::parseMavenArtifact(name, g, a, v, cls);
+    if (g.empty() || a.empty() || v.empty()) return "";
+    std::replace(g.begin(), g.end(), '.', '/');
+    std::string file = a + "-" + v + (cls.empty() ? "" : "-" + cls) + ".jar";
+    return g + "/" + a + "/" + v + "/" + file;
+}
+
+// Forge / NeoForge 的 installer 会检查 <gameDir>\launcher_profiles.json，
+// 没有就直接报「There is no minecraft launcher profile」并退出 —— 这里补一个最小可用的。
+static void ensureLauncherProfiles(const std::string& gameDir) {
+    fs::path p = fs::u8path(gameDir) / "launcher_profiles.json";
+    std::error_code ec;
+    if (fs::exists(p, ec)) return;
+    const char* minimal =
+        "{\n"
+        "  \"profiles\": {},\n"
+        "  \"settings\": { \"enableSnapshots\": false, \"keepLauncherOpen\": true },\n"
+        "  \"version\": 3\n"
+        "}\n";
+    std::ofstream f(p, std::ios::binary | std::ios::trunc);
+    if (f) f << minimal;
+}
+
+std::string Install(const std::string& mcVersion, const std::string& loaderVersionIn,
+                    bool quilt, const std::string& versionsDir,
+                    const std::string& librariesDir,
+                    const std::function<void(const std::string&)>& log,
+                    std::string& err) {
+    auto info = [&](const std::string& m) { if (log) log(m); };
+
+    // 版本为空（用户没先点「获取版本列表」）时自己取：否则 profile URL 会变成
+    // .../loader/1.21.11//profile/json → 必然 404，表现就是「安装永远失败」。
+    std::string loaderVersion = loaderVersionIn;
+    if (loaderVersion.empty()) {
+        info("未指定加载器版本，正在获取最新" + std::string(quilt ? " Quilt" : " Fabric") + " 版本…");
+        std::string ferr;
+        auto list = FetchVersions(mcVersion, quilt, ferr);
+        if (list.empty()) {
+            err = ferr.empty() ? ("没有找到 " + mcVersion + " 可用的加载器版本") : ferr;
+            return "";
+        }
+        for (const auto& v : list) {
+            if (v.stable) { loaderVersion = v.version; break; }
+        }
+        if (loaderVersion.empty()) loaderVersion = list.front().version;
+        info("使用加载器版本 " + loaderVersion);
+    }
+
+    std::string id = VersionId(mcVersion, loaderVersion, quilt);
+    info(std::string("安装 ") + (quilt ? "Quilt" : "Fabric") + " " + loaderVersion +
+         " → " + id);
+
+    // 1. 下载 profile JSON（现成的 launcher version JSON）
+    std::string profileUrl = std::string(metaBase(quilt)) + "/versions/loader/" +
+                             urlEncode(mcVersion) + "/" + urlEncode(loaderVersion) +
+                             "/profile/json";
+    http::Response r = http::Get(profileUrl, 30000);
+    if (r.status != 200) {
+        err = "获取加载器 profile 失败 (HTTP " + std::to_string(r.status) + "): " + r.error;
+        return "";
+    }
+    std::string profileJson = r.body;
+
+    // 2. 写 version JSON
+    fs::path jsonPath = fs::u8path(versionsDir) / fs::u8path(id) / fs::u8path(id + ".json");
+    {
+        std::error_code ec;
+        fs::create_directories(jsonPath.parent_path(), ec);
+        std::ofstream f(jsonPath, std::ios::binary | std::ios::trunc);
+        if (!f) { err = "无法写入版本 JSON: " + id; return ""; }
+        f.write(profileJson.data(), (std::streamsize)profileJson.size());
+    }
+    info("已写入版本 JSON");
+
+    // 3. 解析并下载 libraries
+    std::string mavenDefault = mavenBase(quilt);
+    try {
+        json::Value root = json::parse(profileJson);
+        const json::Value& libs = root.get("libraries");
+        int total = (int)libs.size();
+        int done = 0;
+        int failed = 0;
+        for (size_t i = 0; i < libs.size(); ++i) {
+            const json::Value& lib = libs.at(i);
+            std::string name = lib.get("name").asString();
+            if (name.empty()) continue;  // Mojang downloads 格式（少见），跳过
+
+            std::string mp = mavenPathOf(name);
+            if (mp.empty()) { ++failed; continue; }
+
+            std::string base = lib.get("url").asString();
+            if (base.empty()) base = mavenDefault;
+            if (base.back() != '/') base += '/';
+            std::string url = base + mp;
+            fs::path dest = fs::u8path(librariesDir) / fs::u8path(mp);
+
+            ++done;
+            if (fileExists(dest.u8string())) { continue; }
+
+            std::string sha1 = lib.get("sha1").asString();
+            const std::string* shaPtr = sha1.empty() ? nullptr : &sha1;
+
+            std::error_code ec;
+            fs::create_directories(dest.parent_path(), ec);
+            std::string derr;
+            if (!downloadFallback(url, dest.u8string(), shaPtr, derr)) {
+                ++failed;
+                info("下载失败: " + mp + " (" + derr + ")");
+            }
+        }
+        info("库下载完成: " + std::to_string(done) + " 个" +
+             (failed ? ("（失败 " + std::to_string(failed) + " 个）") : ""));
+    } catch (const std::exception& e) {
+        err = std::string("解析 profile 失败: ") + e.what();
+        return "";
+    }
+
+    return id;
+}
+
+// 运行 java（installer）并等待结束，返回退出码字符串（失败返回空）。
+// outTail 非空时回传 Java 输出的最后几 KB —— installer 失败时真正的原因都在里面。
+static std::string RunJavaAndWait(const std::string& javaPath,
+                                  const std::vector<std::string>& args,
+                                  const std::string& workDir,
+                                  std::string* outTail, std::string& err) {
+    auto quote = [](const std::string& a) {
+        if (a.empty()) return std::string("\"\"");
+        if (a.find_first_of(" \t\n\"") == std::string::npos) return a;
+        std::string o = "\"";
+        for (char c : a) { if (c == '"') o += "\\\""; else o += c; }
+        o += "\"";
+        return o;
+    };
+    std::string cmdline = quote(javaPath);
+    for (const auto& a : args) cmdline += " " + quote(a);
+
+    std::wstring app = http::Utf8ToWide(javaPath);
+    std::wstring cl = http::Utf8ToWide(cmdline);
+    std::wstring wd = http::Utf8ToWide(workDir);
+
+    // 输出重定向到临时文件（否则 installer 崩溃时只剩一个退出码，无法诊断）
+    wchar_t tmpDir[MAX_PATH] = { 0 };
+    GetTempPathW(MAX_PATH, tmpDir);
+    std::wstring logPath = std::wstring(tmpDir) + L"yxg_installer_" +
+                           std::to_wstring(GetCurrentProcessId()) + L"_" +
+                           std::to_wstring(GetTickCount64() % 100000) + L".log";
+    SECURITY_ATTRIBUTES sa{};
+    sa.nLength = sizeof(sa);
+    sa.bInheritHandle = TRUE;
+    HANDLE hLog = CreateFileW(logPath.c_str(), GENERIC_WRITE | GENERIC_READ,
+                              FILE_SHARE_READ | FILE_SHARE_WRITE, &sa,
+                              CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+    if (hLog == INVALID_HANDLE_VALUE) hLog = nullptr;
+
+    STARTUPINFOW si{};
+    si.cb = sizeof(si);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+    if (hLog) {
+        si.dwFlags |= STARTF_USESTDHANDLES;
+        si.hStdOutput = hLog;
+        si.hStdError = hLog;
+        si.hStdInput = nullptr;
+    }
+
+    PROCESS_INFORMATION pi{};
+    BOOL ok = CreateProcessW(app.c_str(), cl.data(), nullptr, nullptr,
+                             hLog ? TRUE : FALSE, CREATE_NO_WINDOW, nullptr,
+                             wd.empty() ? nullptr : wd.c_str(), &si, &pi);
+    if (!ok) {
+        DWORD e = GetLastError();
+        if (hLog) { CloseHandle(hLog); DeleteFileW(logPath.c_str()); }
+        err = "CreateProcess 失败，错误码 " + std::to_string(e);
+        return "";
+    }
+
+    CloseHandle(pi.hThread);
+    // 最多等 15 分钟：installer 偶尔会卡在网络重试上，不能无限期挂住「安装中」
+    DWORD wait = WaitForSingleObject(pi.hProcess, 15 * 60 * 1000);
+    DWORD code = 0;
+    if (wait == WAIT_TIMEOUT) {
+        TerminateProcess(pi.hProcess, 1);
+        WaitForSingleObject(pi.hProcess, 5000);
+        GetExitCodeProcess(pi.hProcess, &code);
+        CloseHandle(pi.hProcess);
+        if (hLog) { CloseHandle(hLog); DeleteFileW(logPath.c_str()); }
+        err = "installer 运行超过 15 分钟已中止";
+        return "";
+    }
+    GetExitCodeProcess(pi.hProcess, &code);
+    CloseHandle(pi.hProcess);
+
+    if (hLog) {
+        LARGE_INTEGER size{};
+        GetFileSizeEx(hLog, &size);
+        const int64_t kTail = 8192;
+        int64_t start = size.QuadPart > kTail ? size.QuadPart - kTail : 0;
+        LARGE_INTEGER pos{};
+        pos.QuadPart = start;
+        SetFilePointerEx(hLog, pos, nullptr, FILE_BEGIN);
+        std::string buf;
+        buf.resize((size_t)(size.QuadPart - start));
+        DWORD got = 0;
+        if (!buf.empty()) ReadFile(hLog, &buf[0], (DWORD)buf.size(), &got, nullptr);
+        buf.resize(got);
+        CloseHandle(hLog);
+        DeleteFileW(logPath.c_str());
+        if (outTail) *outTail = buf;
+    }
+    return std::to_string(code);
+}
+
+// 从 Java 输出里挑出最有用的几行（异常 / Caused by / 关键错误）
+static std::string errSummary(const std::string& tail) {
+    if (tail.empty()) return "";
+    std::vector<std::string> lines;
+    size_t start = 0;
+    while (start < tail.size()) {
+        size_t nl = tail.find('\n', start);
+        std::string line = (nl == std::string::npos) ? tail.substr(start)
+                                                    : tail.substr(start, nl - start);
+        start = (nl == std::string::npos) ? tail.size() : nl + 1;
+        while (!line.empty() && (line.back() == '\r' || line.back() == ' ')) line.pop_back();
+        if (!line.empty()) lines.push_back(line);
+    }
+    if (lines.size() > 60) lines.erase(lines.begin(), lines.end() - 60);
+
+    // 优先：含 Exception / Error / Caused by / Could not / Failed 的行
+    std::vector<std::string> picked;
+    for (const auto& l : lines) {
+        if (l.find("Exception") != std::string::npos ||
+            l.find("Caused by") != std::string::npos ||
+            l.find("Error") != std::string::npos ||
+            l.find("error") != std::string::npos ||
+            l.find("Failed") != std::string::npos ||
+            l.find("failed") != std::string::npos ||
+            l.find("Could not") != std::string::npos ||
+            l.find("Unsupported") != std::string::npos) {
+            if (picked.size() < 3) picked.push_back(l.substr(0, 240));
+        }
+    }
+    if (picked.empty()) {
+        // 没有明确异常：取最后 3 行
+        size_t n = lines.size() < 3 ? lines.size() : 3;
+        for (size_t i = lines.size() - n; i < lines.size(); ++i)
+            picked.push_back(lines[i].substr(0, 240));
+    }
+    std::string out;
+    for (const auto& p : picked) {
+        if (!out.empty()) out += " | ";
+        out += p;
+    }
+    return out;
+}
+
+// ============================================================
+// Forge（运行 installer jar）
+// ============================================================
+// 版本列表：优先用 JSON 接口（HMCL 也是 JSON），XML(maven-metadata) 只做兜底。
+//  1) BMCLAPI：https://bmclapi2.bangbang93.com/forge/minecraft/<mcver>  → 数组
+//     每项 { build, mcversion, version, branch?, modified, files[] }
+//  2) 官方 promotions_slim.json（只有 latest / recommended 两个）
+//  3) maven-metadata.xml（老办法）
+static std::vector<std::string> fetchForgeFromBmclJson(const std::string& mcVersion) {
+    std::vector<std::string> out;
+    http::Response r = http::Get("https://bmclapi2.bangbang93.com/forge/minecraft/" + mcVersion, 30000);
+    if (r.status != 200) return out;
+    try {
+        json::Value arr = json::parse(r.body);
+        std::vector<std::pair<int64_t, std::string>> tmp;
+        for (size_t i = 0; i < arr.size(); ++i) {
+            const json::Value& e = arr.at(i);
+            std::string ver = e.get("version").asString();
+            if (ver.empty()) continue;
+            std::string mc = e.get("mcversion").asString();
+            if (mc.empty()) mc = mcVersion;
+            std::string branch = e.get("branch").asString();
+            // 1.7.10 的 10.13.4.1614 这类，maven 坐标要带 branch 后缀
+            std::string full = mc + "-" + ver;
+            if (!branch.empty()) full += "-" + branch;
+            tmp.push_back({ e.get("build").asInt(), full });
+        }
+        std::sort(tmp.begin(), tmp.end(),
+                  [](const std::pair<int64_t, std::string>& a,
+                     const std::pair<int64_t, std::string>& b) { return a.first > b.first; });
+        for (auto& p : tmp) out.push_back(p.second);
+    } catch (...) { out.clear(); }
+    return out;
+}
+
+static std::vector<std::string> fetchForgeFromPromotions(const std::string& mcVersion) {
+    std::vector<std::string> out;
+    http::Response r = http::Get(
+        "https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json", 30000);
+    if (r.status != 200) return out;
+    try {
+        json::Value root = json::parse(r.body);
+        const json::Value& promos = root.get("promos");
+        std::string latest = promos.get((mcVersion + "-latest").c_str()).asString();
+        std::string recommended = promos.get((mcVersion + "-recommended").c_str()).asString();
+        if (!latest.empty()) out.push_back(mcVersion + "-" + latest);
+        if (!recommended.empty() && recommended != latest)
+            out.push_back(mcVersion + "-" + recommended);
+    } catch (...) { out.clear(); }
+    return out;
+}
+
+static std::vector<std::string> fetchForgeFromXml(const std::string& mcVersion) {
+    std::vector<std::string> out;
+    http::Response r = http::Get(
+        "https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml", 30000);
+    if (r.status != 200) return out;
+    std::string prefix = mcVersion + "-";
+    size_t pos = 0;
+    while ((pos = r.body.find("<version>", pos)) != std::string::npos) {
+        size_t e = r.body.find("</version>", pos);
+        if (e == std::string::npos) break;
+        std::string v = r.body.substr(pos + 9, e - pos - 9);
+        if (v.rfind(prefix, 0) == 0) out.push_back(v);
+        pos = e + 10;
+    }
+    std::reverse(out.begin(), out.end());
+    return out;
+}
+
+std::vector<std::string> FetchForgeVersions(const std::string& mcVersion,
+                                            std::string& err) {
+    std::vector<std::string> out = fetchForgeFromBmclJson(mcVersion);
+    if (out.empty()) out = fetchForgeFromPromotions(mcVersion);
+    if (out.empty()) out = fetchForgeFromXml(mcVersion);
+    if (out.empty()) err = "没有找到 " + mcVersion + " 的 Forge 版本（网络或镜像不可用）";
+    return out;
+}
+
+bool InstallForge(const std::string& fullVersion, const std::string& gameDir,
+                  const std::string& javaPath,
+                  const std::function<void(const std::string&)>& log,
+                  std::string& err) {
+    auto info = [&](const std::string& m) { if (log) log(m); };
+
+    // 1. 下载 installer jar
+    std::string installerUrl = "https://maven.minecraftforge.net/net/minecraftforge/forge/" +
+                               fullVersion + "/forge-" + fullVersion + "-installer.jar";
+    fs::path installer = fs::u8path(gameDir) / fs::u8path("forge-" + fullVersion + "-installer.jar");
+    if (!fileExists(installer.u8string())) {
+        info("下载 Forge installer...");
+        std::string derr;
+        if (!downloadFallback(installerUrl, installer.u8string(), nullptr, derr)) { err = "下载 installer 失败: " + derr; return false; }
+    }
+
+    // 2. 确定 Java（installer 对 Java 大版本极敏感：1.12.2 的 installer 在 17/21 下必崩）
+    std::string mcPart = fullVersion;
+    {
+        size_t p = fullVersion.find('-');
+        if (p != std::string::npos && p > 0) mcPart = fullVersion.substr(0, p);
+    }
+    std::string java;
+    if (!javaPath.empty()) java = javaPath;
+    else {
+        java = pickInstallerJava(mcPart, "", err);
+        if (java.empty()) return false;
+    }
+
+    // 3. 运行 installer
+    ensureLauncherProfiles(gameDir);
+    info("运行 Forge installer（可能需要 1-2 分钟）...");
+    std::vector<std::string> args = { "-jar", installer.u8string(), "--installClient", gameDir };
+    std::string tail;
+    std::string code = RunJavaAndWait(java, args, gameDir, &tail, err);
+    if (code.empty()) { if (err.empty()) err = "运行 installer 失败"; return false; }
+    if (code != "0") {
+        std::string detail = errSummary(tail);
+        err = "installer 退出码 " + code + (detail.empty() ? "" : "：" + detail);
+        if (tail.find("UnsupportedClassVersionError") != std::string::npos)
+            err += "（Java 版本过高：这个 installer 需要更低版本的 Java）";
+        return false;
+    }
+
+    info("Forge 安装完成，请刷新版本列表");
+    return true;
+}
+
+// NeoForge 版本列表：优先 maven.neoforged.net 的 JSON API（HMCL 同款），XML 兜底。
+//   新 group：net/neoforged/neoforge   → 版本形如 20.2.88 / 21.1.0
+//   旧 group：net/neoforged/forge      → 只有 1.20.1，版本形如 1.20.1-47.1.106
+static std::vector<std::string> fetchNeoFromJson(const std::string& mcVersion) {
+    std::vector<std::string> out;
+    const bool legacy = (mcVersion == "1.20.1");
+    const char* artifact = legacy ? "forge" : "neoforge";
+    const std::string urls[] = {
+        std::string("https://maven.neoforged.net/api/maven/versions/releases/net/neoforged/") + artifact,
+        std::string("https://neoforged.forgecdn.net/api/maven/versions/releases/net/neoforged/") + artifact,
+    };
+    std::string key = mcVersion;
+    if (key.rfind("1.", 0) == 0) key = key.substr(2);
+
+    for (const auto& url : urls) {
+        http::Response r = http::Get(url, 30000);
+        if (r.status != 200) continue;
+        try {
+            json::Value root = json::parse(r.body);
+            const json::Value& vs = root.get("versions");
+            for (size_t i = 0; i < vs.size(); ++i) {
+                std::string v = vs.at(i).asString();
+                if (v.empty()) continue;
+                bool ok;
+                if (legacy) {
+                    ok = v.rfind(mcVersion + "-", 0) == 0;
+                } else {
+                    ok = v.rfind(key, 0) == 0 &&
+                         (v.size() == key.size() || v[key.size()] == '.');
+                }
+                if (ok) out.push_back(v);
+            }
+        } catch (...) { out.clear(); }
+        if (!out.empty()) break;
+    }
+    std::reverse(out.begin(), out.end());   // API 是升序，转成新的在前
+    return out;
+}
+
+std::vector<std::string> FetchNeoForgeVersions(const std::string& mcVersion,
+                                               std::string& err) {
+    std::vector<std::string> out = fetchNeoFromJson(mcVersion);
+
+    // 兜底：BMCLAPI 的 maven-metadata.xml
+    if (out.empty()) {
+        std::string url = std::string(kNeoForgeMaven) + "maven-metadata.xml";
+        http::Response r = http::Get(url, 30000);
+        if (r.status == 200) {
+            std::string key = mcVersion;
+            if (key.rfind("1.", 0) == 0) key = key.substr(2);
+            size_t pos = 0;
+            while ((pos = r.body.find("<version>", pos)) != std::string::npos) {
+                size_t e = r.body.find("</version>", pos);
+                if (e == std::string::npos) break;
+                std::string v = r.body.substr(pos + 9, e - pos - 9);
+                if (v.rfind(key, 0) == 0 &&
+                    (v.size() == key.size() || v[key.size()] == '.')) {
+                    out.push_back(v);
+                }
+                pos = e + 10;
+            }
+            std::reverse(out.begin(), out.end());
+        }
+    }
+
+    if (out.empty()) err = "没有找到 " + mcVersion + " 的 NeoForge 版本（网络或镜像不可用）";
+    return out;
+}
+
+bool InstallNeoForge(const std::string& fullVersion, const std::string& gameDir,
+                     const std::string& javaPath,
+                     const std::function<void(const std::string&)>& log,
+                     std::string& err) {
+    auto info = [&](const std::string& m) { if (log) log(m); };
+
+    // 1.20.1 的 NeoForge 在 net/neoforged/forge 下，artifact 名也是 forge
+    const bool legacy = fullVersion.rfind("1.", 0) == 0;
+    const std::string base = legacy
+        ? "https://maven.neoforged.net/releases/net/neoforged/forge/"
+        : "https://maven.neoforged.net/releases/net/neoforged/neoforge/";
+    const std::string art = legacy ? "forge" : "neoforge";
+    std::string installerUrl = base + fullVersion + "/" + art + "-" + fullVersion + "-installer.jar";
+    fs::path installer = fs::u8path(gameDir) / fs::u8path("neoforge-" + fullVersion + "-installer.jar");
+    if (!fileExists(installer.u8string())) {
+        info("下载 NeoForge installer...");
+        std::string derr;
+        if (!downloadFallback(installerUrl, installer.u8string(), nullptr, derr)) { err = "下载 installer 失败: " + derr; return false; }
+    }
+
+    // NeoForge 版本号本身不含 "1."（21.1.0 = MC 1.21.1），要还原成 MC 版本再判断 Java
+    std::string mcPart;
+    if (fullVersion.rfind("1.", 0) == 0) {
+        size_t p = fullVersion.find('-');
+        mcPart = (p == std::string::npos || p == 0) ? fullVersion : fullVersion.substr(0, p);
+    } else {
+        int a = 0, b = 0, c = 0;
+        if (sscanf(fullVersion.c_str(), "%d.%d.%d", &a, &b, &c) >= 2)
+            mcPart = "1." + std::to_string(a) + "." + std::to_string(b);
+    }
+    if (mcPart.empty()) mcPart = "1.21";
+
+    std::string java;
+    if (!javaPath.empty()) java = javaPath;
+    else {
+        java = pickInstallerJava(mcPart, "", err);
+        if (java.empty()) return false;
+    }
+
+    ensureLauncherProfiles(gameDir);
+    info("运行 NeoForge installer（可能需要 1-2 分钟）...");
+    std::vector<std::string> args = { "-jar", installer.u8string(), "--installClient", gameDir };
+    std::string tail;
+    std::string code = RunJavaAndWait(java, args, gameDir, &tail, err);
+    if (code.empty()) { if (err.empty()) err = "运行 installer 失败"; return false; }
+    if (code != "0") {
+        std::string detail = errSummary(tail);
+        err = "installer 退出码 " + code + (detail.empty() ? "" : "：" + detail);
+        if (tail.find("UnsupportedClassVersionError") != std::string::npos)
+            err += "（Java 版本过高：这个 installer 需要更低版本的 Java）";
+        return false;
+    }
+
+    info("NeoForge 安装完成，请刷新版本列表");
+    return true;
+}
+
+} // namespace loader

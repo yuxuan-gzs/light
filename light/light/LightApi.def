@@ -1,0 +1,9 @@
+; LightApi.def - export table for the light network bridge module.
+; Exported symbols are callable by same-process plugin DLLs through
+; GetModuleHandle(NULL) + GetProcAddress("LightApi_*").
+EXPORTS
+    LightApi_Init
+    LightApi_Shutdown
+    LightApi_HttpRequest
+    LightApi_HttpRequestStream
+    LightApi_Free

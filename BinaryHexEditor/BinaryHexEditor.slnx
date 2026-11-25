@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="BinaryHexEditor/BinaryHexEditor.vcxproj" Id="2275eac2-e140-4274-b45f-25c60a55a1d5" />
+</Solution>

@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="Minecraft_C_IP_B/Minecraft_C_IP_B.vcxproj" />
+</Solution>

@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="yuxuangzs-Service-light/yuxuangzs-Service-light.vcxproj" Id="30ff5bac-085f-49f8-9781-ceabeb85ed30" />
+</Solution>

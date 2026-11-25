@@ -1,0 +1,5 @@
+area=12.566360
+HI
+sum=13 r=3 d=3.750000
+q=42
+switch-hi

@@ -1,0 +1,9 @@
+{
+  "id": "yxg-minecraft-launcher-ui",
+  "name": "我的世界启动器",
+  "version": "2.0.0",
+  "author": "YXG",
+  "description": "HMCL 风格 Minecraft 启动器：多文件夹实例管理、单局设置、完整性检查、模组/资源包/光影/世界/原理图管理、加载器安装、Modrinth 双语搜索。界面由原生 DLL（YXG_MinecraftLauncher.dll）自绘。",
+  "icon": "MC",
+  "entry": "main.js"
+}

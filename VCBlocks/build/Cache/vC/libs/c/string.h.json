@@ -1,0 +1,81 @@
+{
+    "functions": [
+        {
+            "description": "复制字符串",
+            "name": "strcpy",
+            "translation": "复制字符串"
+        },
+        {
+            "description": "复制字符串(限长)",
+            "name": "strncpy",
+            "translation": "复制字符串(限长)"
+        },
+        {
+            "description": "连接字符串",
+            "name": "strcat",
+            "translation": "连接字符串"
+        },
+        {
+            "description": "字符串长度",
+            "name": "strlen",
+            "translation": "字符串长度"
+        },
+        {
+            "description": "比较字符串",
+            "name": "strcmp",
+            "translation": "比较字符串"
+        },
+        {
+            "description": "查找字符",
+            "name": "strchr",
+            "translation": "查找字符"
+        },
+        {
+            "description": "查找子串",
+            "name": "strstr",
+            "translation": "查找子串"
+        },
+        {
+            "description": "复制内存",
+            "name": "memcpy",
+            "translation": "复制内存"
+        },
+        {
+            "description": "填充内存",
+            "name": "memset",
+            "translation": "填充内存"
+        },
+        {
+            "description": "比较内存",
+            "name": "memcmp",
+            "translation": "比较内存"
+        },
+        {
+            "description": "分割字符串",
+            "name": "strtok",
+            "translation": "分割字符串"
+        },
+        {
+            "description": "复制字符串(新内存)",
+            "name": "strdup",
+            "translation": "复制字符串(新内存)"
+        }
+    ],
+    "language": "中文",
+    "locale": "zh-CN",
+    "name": "string.h",
+    "strings": {
+        "memcmp": "比较内存",
+        "memcpy": "复制内存",
+        "memset": "填充内存",
+        "strcat": "连接字符串",
+        "strchr": "查找字符",
+        "strcmp": "比较字符串",
+        "strcpy": "复制字符串",
+        "strdup": "复制字符串(新内存)",
+        "strlen": "字符串长度",
+        "strncpy": "复制字符串(限长)",
+        "strstr": "查找子串",
+        "strtok": "分割字符串"
+    }
+}

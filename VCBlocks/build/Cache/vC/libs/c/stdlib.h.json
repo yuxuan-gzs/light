@@ -1,0 +1,93 @@
+{
+    "functions": [
+        {
+            "description": "分配内存",
+            "name": "malloc",
+            "translation": "分配内存"
+        },
+        {
+            "description": "释放内存",
+            "name": "free",
+            "translation": "释放内存"
+        },
+        {
+            "description": "分配并清零",
+            "name": "calloc",
+            "translation": "分配并清零"
+        },
+        {
+            "description": "重新分配内存",
+            "name": "realloc",
+            "translation": "重新分配内存"
+        },
+        {
+            "description": "字符串转整数",
+            "name": "atoi",
+            "translation": "字符串转整数"
+        },
+        {
+            "description": "字符串转浮点数",
+            "name": "atof",
+            "translation": "字符串转浮点数"
+        },
+        {
+            "description": "随机数",
+            "name": "rand",
+            "translation": "随机数"
+        },
+        {
+            "description": "设置随机种子",
+            "name": "srand",
+            "translation": "设置随机种子"
+        },
+        {
+            "description": "退出程序",
+            "name": "exit",
+            "translation": "退出程序"
+        },
+        {
+            "description": "执行系统命令",
+            "name": "system",
+            "translation": "执行系统命令"
+        },
+        {
+            "description": "整数绝对值",
+            "name": "abs",
+            "translation": "整数绝对值"
+        },
+        {
+            "description": "快速排序",
+            "name": "qsort",
+            "translation": "快速排序"
+        },
+        {
+            "description": "二分查找",
+            "name": "bsearch",
+            "translation": "二分查找"
+        },
+        {
+            "description": "字符串转长整数",
+            "name": "strtol",
+            "translation": "字符串转长整数"
+        }
+    ],
+    "language": "中文",
+    "locale": "zh-CN",
+    "name": "stdlib.h",
+    "strings": {
+        "abs": "整数绝对值",
+        "atof": "字符串转浮点数",
+        "atoi": "字符串转整数",
+        "bsearch": "二分查找",
+        "calloc": "分配并清零",
+        "exit": "退出程序",
+        "free": "释放内存",
+        "malloc": "分配内存",
+        "qsort": "快速排序",
+        "rand": "随机数",
+        "realloc": "重新分配内存",
+        "srand": "设置随机种子",
+        "strtol": "字符串转长整数",
+        "system": "执行系统命令"
+    }
+}
