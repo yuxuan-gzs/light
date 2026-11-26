@@ -5,7 +5,7 @@
 namespace addon {
 namespace names {
 
-const char* const kData = R"MCLDATA(# HMCL mod.csv fields: mcmodId, curseforgeId, modrinthId, mainName, subName, abbrName, modIds
+extern const char* const kData = R"MCLDATA(# HMCL mod.csv fields: mcmodId, curseforgeId, modrinthId, mainName, subName, abbrName, modIds
 [mods]
 2	industrial-craft	industrial-craft	工业时代2	Industrial Craft 2	IC2	IC2;ic2
 3		redpower2-core	红石力量2	RedPower2	RP2	RedPowerCore;RedPowerBase

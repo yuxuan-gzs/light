@@ -1,4 +1,4 @@
-// UiActions.cpp — 交互逻辑：按钮、卡片、下拉、异步任务、文件选择
+﻿// UiActions.cpp — 交互逻辑：按钮、卡片、下拉、异步任务、文件选择
 #include "Ui.h"
 #include "UiNav.h"
 #include "Theme.h"
@@ -24,6 +24,15 @@
 namespace ui {
 
 namespace fs = std::filesystem;
+
+// 内容（模组/资源包/光影/世界）下载时用的「游戏版本号」：
+// 实例可能是 fabric-loader-0.16.5-1.20.1，直接拿去请求 Modrinth 会一条都没有，
+// 必须沿 inheritsFrom 回溯到原版版本号（和 HMCL 一样用实例的 MC 版本）。
+static std::string mcBaseVerOf(const mlc::Instance* in) {
+    if (!in) return std::string();
+    std::string v = mc::baseVersionId(mlc::JoinPath(in->folder, "versions"), in->versionId);
+    return v.empty() ? in->versionId : v;
+}
 
 // ---------------------------------------------------------------
 // 文件选择
@@ -128,7 +137,9 @@ bool Ui::HitGridButton(const Widget& w, int idx, int x, int y) {
     float by = cy + w.cardH - 32;
     if (it.toggleable) bx = cx + w.cardW - 52;
     if (it.toggleable || !it.action.empty()) {
-        return x >= bx && x <= cx + w.cardW - 6 && y >= by && y <= cy + w.cardH - 4;
+        
+    mlc::Log("[HitGridButton] mouse=(" + std::to_string(x) + "," + std::to_string(y) + ") btn=(" + std::to_string((int)bx) + "," + std::to_string((int)by) + ") size=(" + std::to_string((int)(cx + w.cardW - 6)) + "," + std::to_string((int)(cy + w.cardH - 4)) + ") idx=" + std::to_string(idx));
+    return x >= bx && x <= cx + w.cardW - 6 && y >= by && y <= cy + w.cardH - 4;
     }
     return false;
 }
@@ -153,6 +164,8 @@ bool Ui::HitRowButton(const Widget& w, int idx, int x, int y) {
     float rowRight = (float)w.rc.left + (float)(w.rc.right - w.rc.left) - 6.0f;
     float bx = rowRight - 74.0f - 8.0f;
     float by = (float)w.rc.top + (float)(vrow * rowH) + (float)((rowH - 4 - 26) / 2);
+    
+    mlc::Log("[HitRowButton] mouse=(" + std::to_string(x) + "," + std::to_string(y) + ") btn=(" + std::to_string((int)bx) + "," + std::to_string((int)by) + ") idx=" + std::to_string(idx));
     return x >= bx && x <= rowRight - 8 && y >= by && y <= by + 26;
 }
 
@@ -451,7 +464,7 @@ void Ui::StartDownloadSearch() {
     if (m_dlCat == 1 && in) {
         loader = in->loader.empty() ? "fabric" : in->loader;
         if (loader == "neoforge") loader = "neoforge";
-        mcver = in->versionId;
+        mcver = mcBaseVerOf(in);
     }
     std::string q = mlc::WToUtf8(m_dlSearch);
     // 空关键词 = 像 HMCL 一样列出该分类的全部热门项目（每页 20 条）
@@ -527,7 +540,15 @@ void Ui::StartAddonCategories() {
 }
 
 void Ui::StartAddonSearch(int page) {
-    if (m_dlSearching || m_dlCat != 1) return;
+    // 如果正在搜索，说明用户可能在等结果，或者上一次请求卡住了。
+    // 这里我们不再直接 return，而是允许重新发起搜索（通过 ++m_addonSearchSeq 让旧请求作废）
+    if (m_dlCat != 1) return;
+    m_dlSearching = true;
+    m_addonHits.clear();
+    Rebuild();
+    InvalidateRect(m_hwnd, nullptr, FALSE);
+    // 注意：下面原来的代码会再次设置 m_dlSearching = true 并 clear，
+    // 但这无伤大雅，关键是不要因为 m_dlSearching 为 true 就提前 return。
     m_addonPage = std::max(0, page);
     if (m_addonPages > 0) m_addonPage = std::min(m_addonPage, m_addonPages - 1);
 
@@ -682,7 +703,7 @@ void Ui::StartAddonInstall(bool saveAs) {
         dest = mlc::WToUtf8(picked);
     } else {
         std::string dir = in->modsDir();
-        dest = mlc::WToUtf8(mlc::JoinPath(dir, mlc::WToUtf8(name)));
+        dest = mlc::JoinPath(dir, mlc::WToUtf8(name));
         if (mlc::FileExists(dest)) { ShowToast(L"目标文件已存在，请换一个文件名", true); return; }
     }
 
@@ -725,6 +746,15 @@ void Ui::HandleComboSelect(Widget& w) {
     mlc::Store& store = mlc::Store::I();
     launcher::App& app = launcher::App::Instance();
 
+    if (w.id == L"ldlg.acc") {
+        // 启动弹窗里直接切账号（和账号页「使用选中账号」等价）
+        if (w.sel >= 0 && w.sel < (int)m_launchAccKeys.size()) {
+            std::string key = m_launchAccKeys[w.sel];
+            std::string err;
+            if (!app.selectAccount(key, err)) ShowToast(L"切换账号失败：" + mlc::Utf8ToW(err), true);
+        }
+        return;
+    }
     if (w.id == L"set.source") {
         store.spec().source = (w.sel == 2) ? "mojang" : (w.sel == 1 ? "bmclapi" : "auto");
         store.SaveSettings();
@@ -754,6 +784,16 @@ void Ui::HandleComboSelect(Widget& w) {
         m_gsFolderSel = w.sel;
         if (w.sel > 0 && w.sel <= (int)store.folders().size())
             store.SetCurrentFolder(store.folders()[w.sel - 1]);
+        Rebuild();
+    } else if (w.id == L"dl.inst") {
+        // 内容下载：切到这一行对应的实例，文件随它的 mods/resourcepacks/shaderpacks/saves 走
+        if (w.sel >= 0 && w.sel < (int)m_dlInstIds.size()) {
+            store.SetCurrent(m_dlInstIds[w.sel]);
+            m_modsLoaded = m_packsLoaded = m_shadersLoaded = m_worldsLoaded = false;
+            m_cfStatus.clear();
+            // 游戏版本过滤跟着换到新实例的原版版本号（HMCL 的下载页也是实例驱动）
+            if (mlc::Instance* ni = CurInst()) m_addonMcVer = mlc::Utf8ToW(mcBaseVerOf(ni));
+        }
         Rebuild();
     } else if (w.id == L"dl.folder") {
         m_dlFolderSel = w.sel;
@@ -835,11 +875,31 @@ void Ui::HandleGridClick(Widget& w, int idx, bool inButton) {
         return;
     }
 
+    if (w.id == L"gs.folders") {
+        // HMCL 的目录抽屉：整行可点
+        if (idx <= 0) {
+            m_gsFolderSel = 0;
+        } else {
+            m_gsFolderSel = idx;
+            if (idx - 1 < (int)store.folders().size())
+                store.SetCurrentFolder(store.folders()[idx - 1]);
+        }
+        Rebuild();
+        InvalidateRect(m_hwnd, nullptr, FALSE);
+        return;
+    }
     if (w.id == L"gs.rows") {
         store.SetCurrent(mlc::WToUtf8(it.key));
         if (inButton) StartLaunch(it.key);
         else ShowToast(L"已选择 " + it.title);
         Rebuild();
+        return;
+    }
+    if (w.id == L"ldlg.rows") {
+        store.SetCurrent(mlc::WToUtf8(it.key));
+        w.selIdx = idx;
+        Rebuild();
+        InvalidateRect(m_hwnd, nullptr, FALSE);
         return;
     }
     if (w.id == L"home.grid" || w.id == L"gs.grid") {
@@ -970,8 +1030,31 @@ void Ui::HandleButton(const std::wstring& id) {
     // ---------- 首页 ----------
     if (id == L"home.launch") {
         if (app.gameRunning()) { app.stopGame(); return; }
-        if (in) StartLaunch(mlc::Utf8ToW(in->id));
-        else ShowToast(L"还没有游戏：先去「下载」安装，或在「版本选择」添加", true);
+        if (m_launching) { ShowToast(L"游戏正在启动中，请稍候…"); return; }
+        if (store.list().empty()) {
+            ShowToast(L"还没有游戏：先去「下载」安装一个版本", true);
+            SetPage(Download);
+            return;
+        }
+        // 照 HMCL：一个启动按钮 → 弹窗里选实例 / 账号，再启动
+        m_showLaunchDlg = true;
+        Rebuild();
+        InvalidateRect(m_hwnd, nullptr, FALSE);
+        return;
+    }
+    if (id == L"ldlg.cancel") {
+        m_showLaunchDlg = false;
+        Rebuild();
+        InvalidateRect(m_hwnd, nullptr, FALSE);
+        return;
+    }
+    if (id == L"ldlg.start") {
+        if (app.gameRunning()) { app.stopGame(); m_showLaunchDlg = false; Rebuild(); return; }
+        mlc::Instance* cur = store.Current();
+        if (!cur) { ShowToast(L"请先选择一个游戏", true); return; }
+        std::string iid = cur->id;
+        m_showLaunchDlg = false;
+        StartLaunch(mlc::Utf8ToW(iid));
         return;
     }
     if (id == L"home.verset") { SetPage(Versions); m_verTab = TabVerSet; Rebuild(); return; }
@@ -1052,7 +1135,7 @@ void Ui::HandleButton(const std::wstring& id) {
             m_dlSearch.clear();
             m_addonPage = 0;
             m_addonDetail = m_addonShowDlg = m_addonShowChangelog = false;
-            if (in) m_addonMcVer = mlc::Utf8ToW(in->versionId);
+            if (in) m_addonMcVer = mlc::Utf8ToW(mcBaseVerOf(in));
             if (m_addonCategoryNames.empty()) {
                 m_addonCategoryNames.push_back(L"全部");
                 StartAddonCategories();
@@ -1373,29 +1456,53 @@ void Ui::HandleButton(const std::wstring& id) {
         return;
     }
     if (id == L"gs.del") {
-        if (Widget* w = Find(L"gs.grid")) {
-            if (w->selIdx >= 0 && w->selIdx < (int)store.list().size()) {
-                std::string iid = store.list()[w->selIdx].id;
-                store.RemoveInstance(iid);
-                ShowToast(L"已从列表移除（未删除文件）");
-                Rebuild();
-            } else ShowToast(L"请先选中一个游戏");
-        }
+        mlc::Instance* cur = store.Current();
+        if (!cur) { ShowToast(L"请先选中一个游戏", true); return; }
+        std::string iid = cur->id, nm = cur->name;
+        store.RemoveInstance(iid);
+        ShowToast(L"已从列表移除（文件保留，下次扫描会重新出现）：" + mlc::Utf8ToW(nm));
+        Rebuild();
         return;
     }
     if (id == L"gs.delfile") {
-        Widget* w = Find(L"gs.grid");
-        if (w && w->selIdx >= 0 && w->selIdx < (int)store.list().size()) {
-            std::string iid = store.list()[w->selIdx].id;
-            std::string vname = store.list()[w->selIdx].versionId;
-            std::string err;
-            if (store.DeleteInstanceFiles(iid, err)) {
-                ShowToast(L"已删除版本文件 " + mlc::Utf8ToW(vname));
-                Rebuild();
-            } else {
-                ShowToast(L"删除失败：" + mlc::Utf8ToW(err), true);
-            }
-        } else ShowToast(L"请先选中一个游戏");
+        mlc::Instance* cur = store.Current();
+        if (!cur) { ShowToast(L"请先选中一个游戏", true); return; }
+        std::string iid = cur->id, vname = cur->versionId;
+        if (MessageBoxW(m_hwnd,
+                (L"确定删除版本目录？\n\n" + mlc::Utf8ToW(vname) +
+                 L"\n\n只删 versions 下这个版本目录，存档不会被删除。").c_str(),
+                L"连同文件删除", MB_YESNO | MB_ICONWARNING) != IDYES) return;
+        std::string err;
+        if (store.DeleteInstanceFiles(iid, err)) {
+            ShowToast(L"已删除版本文件 " + mlc::Utf8ToW(vname));
+            Rebuild();
+        } else {
+            ShowToast(L"删除失败：" + mlc::Utf8ToW(err), true);
+        }
+        return;
+    }
+    if (id == L"gs.launch") {
+        mlc::Instance* cur = store.Current();
+        if (!cur) { ShowToast(L"请先选中一个游戏", true); return; }
+        StartLaunch(mlc::Utf8ToW(cur->id));
+        return;
+    }
+    if (id == L"gs.opendir") {
+        mlc::Instance* cur = store.Current();
+        if (!cur) { ShowToast(L"请先选中一个游戏", true); return; }
+        content::OpenFolder(cur->dataDir());
+        return;
+    }
+    if (id == L"gs.searchbtn") {
+        if (Widget* w = Find(L"gs.search")) m_gsSearch = w->editText;
+        Rebuild();
+        InvalidateRect(m_hwnd, nullptr, FALSE);
+        return;
+    }
+    if (id == L"gs.showparents") {
+        m_showHiddenVersions = !m_showHiddenVersions;
+        Rebuild();
+        InvalidateRect(m_hwnd, nullptr, FALSE);
         return;
     }
     if (id == L"gs.opendata") {
@@ -1419,12 +1526,17 @@ void Ui::HandleButton(const std::wstring& id) {
                 m_dlSearch.clear();
                 m_addonPage = 0;
                 m_addonHits.clear();
-                if (mlc::Instance* cur = CurInst()) m_addonMcVer = mlc::Utf8ToW(cur->versionId);
+                if (mlc::Instance* cur = CurInst()) m_addonMcVer = mlc::Utf8ToW(mcBaseVerOf(cur));
                 if (m_addonCategoryNames.empty()) {
                     m_addonCategoryNames.push_back(L"全部");
                     StartAddonCategories();
                 }
                 StartAddonSearch(0);
+                
+                // 不要直接 return，让后面的 m_scrollY = 0; Rebuild(); 执行
+                m_scrollY = 0;
+                Rebuild();
+                InvalidateRect(m_hwnd, nullptr, FALSE);
                 return;
             }
             // 和世界的「首次进入自动拉一页」一致：资源包/光影也直接显示全部热门
@@ -1498,6 +1610,8 @@ void Ui::HandleButton(const std::wstring& id) {
     if (id == L"addon.search") {
         if (Widget* w = Find(L"dl.csearch")) m_dlSearch = w->editText;
         if (Widget* w = Find(L"dl.mcver")) m_addonMcVer = w->editText;
+        if (Widget* w = Find(L"ad.sort")) m_addonSort = w->sel;
+        if (Widget* w = Find(L"ad.category")) m_addonCategorySel = w->sel;
         StartAddonSearch(0);
         return;
     }
@@ -1565,7 +1679,7 @@ void Ui::HandleButton(const std::wstring& id) {
                         : (m_dlCat == 2 ? in->resourcePacksDir() : in->shaderPacksDir());
         std::string loader = in->loader.empty() ? "fabric" : in->loader;
         if (m_dlCat != 1) loader.clear();
-        std::string ver = in->versionId;
+        std::string ver = mcBaseVerOf(in);
         m_progressText = L"正在下载 " + mlc::Utf8ToW(h.title) + L"…";
         Rebuild();
         InvalidateRect(m_hwnd, nullptr, FALSE);
@@ -1950,4 +2064,23 @@ void Ui::HandleButton(const std::wstring& id) {
     if (id == L"set.srvdir") {
         if (Widget* w = Find(L"set.srvlist")) {
             if (w->selIdx >= 0 && w->selIdx < (int)app.servers().size()) {
-     
+                auto s = app.servers()[w->selIdx];
+                app.setDirectServer(s.first, s.second);
+                ShowToast(L"已设为直连：" + mlc::Utf8ToW(s.first));
+                Rebuild();
+            } else ShowToast(L"请先选中一项");
+        }
+        return;
+    }
+    if (id == L"set.srvdotsu") {
+        app.setDirectServer("", 25565);
+        ShowToast(L"已取消直连");
+        Rebuild();
+        return;
+    }
+}
+
+} // namespace ui
+
+
+

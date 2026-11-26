@@ -8,10 +8,10 @@ $kit  = "I:\Windows Kits\10"
 $kitVer = "10.0.26100.0"
 $zlibDir = "D:\zlib-1.3.2"
 
-$srcDir = "$PSScriptRoot\src"
-$incDir = "$PSScriptRoot\include"
-$objDir = "$PSScriptRoot\obj\x64\Release"
-$binDir = "$PSScriptRoot\bin\x64\Release"
+$srcDir = "D:\YX\MCLauncher\src"
+$incDir = "D:\YX\MCLauncher\include"
+$objDir = "D:\YX\MCLauncher\obj\x64\Release"
+$binDir = "D:\YX\MCLauncher\bin\x64\Release"
 
 New-Item -ItemType Directory -Force -Path $objDir | Out-Null
 New-Item -ItemType Directory -Force -Path $binDir | Out-Null

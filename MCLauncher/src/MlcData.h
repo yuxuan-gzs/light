@@ -12,7 +12,9 @@
 #pragma once
 
 #include <cstdint>
+#include <map>
 #include <mutex>
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
@@ -183,6 +185,28 @@ public:
     std::vector<std::string> VersionsInFolder(const std::string& folder);
     bool FolderRegistered(const std::string& folder);
 
+    // ---------------------------------------------------------------
+    // 实例列表「以磁盘为准」（照 HMCL：实例就是 versions\<id>，没有第二份注册表）
+    // ---------------------------------------------------------------
+    // 扫描所有已登记文件夹：补登记磁盘上新出现的版本，剔除版本目录已被删除的实例。
+    // 手动删掉 versions\<id> 之后，这里会立刻把「已安装」和列表项一起清掉。
+    bool SyncWithDisk();
+    // 该实例是否应该出现在列表里。
+    // HMCL 3.6 的实例模型里，加载器是「装进同一个游戏」的组件而不是新游戏：
+    // 只被其它版本 inheritsFrom 引用的原版版本不单独算一个游戏（当前游戏除外，避免选中项消失）。
+    bool IsVisibleInstance(const Instance& in) const;
+    int HiddenParentCount() const;
+    bool IsParentOnly(const std::string& folder, const std::string& versionId) const;
+    // 装好加载器后：把同文件夹里的原版实例改指向加载器版本（同一个游戏，不新增实例）。
+    // 返回实例 id（没有可复用的就新建一个）。
+    std::string AdoptLoaderVersion(const std::string& folder, const std::string& loaderVersionId);
+    // 版本 JSON 里的 inheritsFrom（空 = 不是继承版本）
+    static std::string ParentOf(const std::string& folder, const std::string& versionId);
+    // 版本 JSON 里的 id（读不到就用目录名）
+    static std::string JsonIdOf(const std::string& folder, const std::string& versionId);
+    // 默认游戏文件夹：<主程序>\.minecraft（等同 HMCL 便携模式），首次运行自动登记
+    static std::string DefaultFolder();
+
     // ---- 账号 ----
     std::vector<AccountRec>& accounts();
     std::string AccountKey() const;                     // 当前账号 key（=uuid）
@@ -223,6 +247,9 @@ private:
     std::string m_curFolder;
     std::vector<AccountRec> m_accs;
     std::string m_accKey;
+    // folder → 该文件夹里「被别的版本 inheritsFrom 引用」的原版版本 id
+    std::map<std::string, std::set<std::string>> m_parents;
+    void RebuildParentCache();
     mutable std::mutex m_mu;
 };
 
@@ -234,6 +261,9 @@ std::string WToUtf8(const std::wstring& s);
 std::string JoinPath(const std::string& a, const std::string& b);
 bool DirExists(const std::string& p);
 bool FileExists(const std::string& p);
+// 路径比较（统一分隔符、忽略结尾斜杠与大小写）：D:/a\.minecraft 与 D:\A\.minecraft 视为同一个
+std::string NormalizePath(const std::string& p);
+bool SamePath(const std::string& a, const std::string& b);
 std::string ReadTextFile(const std::string& path);
 bool WriteTextFile(const std::string& path, const std::string& text);
 // 简单的文件日志（Data\mlc\logs\launcher.log，追加）

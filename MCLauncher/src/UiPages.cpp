@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <ctime>
+#include <cwctype>
 #include <filesystem>
 #include <functional>
 #include <map>
@@ -164,6 +165,14 @@ static int gridCols(int width, int cardW) {
     return std::max(1, (width + 12) / (cardW + 12));
 }
 
+// 实例对应的「MC 原版版本号」：加载器实例（fabric-loader-x-1.20.1）要回溯到 1.20.1，
+// 否则 Modrinth 的 game_versions 过滤一条都匹配不到。
+static std::string mcBaseVerOf(const mlc::Instance* in) {
+    if (!in) return std::string();
+    std::string v = mc::baseVersionId(mlc::JoinPath(in->folder, "versions"), in->versionId);
+    return v.empty() ? in->versionId : v;
+}
+
 // ============================================================
 // 首页
 // ============================================================
@@ -174,28 +183,29 @@ void Ui::BuildHome() {
     int right = m_width - 32;
     int cw = right - x;
 
+    // 启动弹窗打开时只构建弹窗自己的控件（模态）
+    if (m_showLaunchDlg) {
+        BuildLaunchDialog();
+        return;
+    }
+
     mlc::Instance* cur = store.Current();
     m_widgets.push_back(L(L"home.title", L"我的世界", x, y, 400, 34, 2));
 
     std::wstring sub = cur ? (L"当前游戏：" + mlc::Utf8ToW(cur->name))
-                           : L"还没有游戏。到「下载」安装一个，或在「版本选择」里添加已有文件夹。";
-    m_widgets.push_back(L(L"home.sub", sub, x, y + 38, cw - 340, 24, 0));
+                           : L"还没有游戏。点右上角「启动游戏」，里可以新建/选择游戏。";
+    m_widgets.push_back(L(L"home.sub", sub, x, y + 38, cw - 300, 24, 0));
 
-    // 启动按钮（右上，大）
-    std::wstring launchText = m_running ? L"■ 结束游戏"
+    // 照 HMCL：整页只有一个启动按钮（点开弹窗选实例 / 账号）
+    std::wstring launchText = m_running ? L"■  结束游戏"
                                         : (m_launching ? L"启动中…" : L"▶  启动游戏");
     COLORREF launchColor = m_running ? theme::RED
                                      : (m_launching ? theme::LINE : kPrimary);
-    Widget launch = B(L"home.launch", launchText,
-                      right - 270, y + 8, right, y + 62, launchColor);
-    m_widgets.push_back(launch);
-    m_widgets.push_back(B(L"home.verset", L"版本设置", right - 270, y + 70,
-                          right - 130, y + 102, 0));
-    m_widgets.push_back(B(L"home.gosel", L"版本选择", right - 122, y + 70,
-                          right, y + 102, 0));
+    m_widgets.push_back(B(L"home.launch", launchText, right - 268, y + 4, right, y + 58,
+                          launchColor));
 
     // 当前实例信息
-    int iy = y + 120;
+    int iy = y + 58;
     m_widgets.push_back(L(L"home.instname",
         cur ? mlc::Utf8ToW(cur->name) : L"未选择游戏", x, iy, 420, 30, 1));
     std::wstring line2 = L"版本 " + (cur ? mlc::Utf8ToW(cur->versionId) : L"—");
@@ -203,21 +213,25 @@ void Ui::BuildHome() {
         line2 += L"   ·   加载器 " + mlc::Utf8ToW(cur->loader) + L" " +
                  mlc::Utf8ToW(cur->loaderVersion);
     line2 += L"   ·   隔离 " + std::wstring(cur && cur->isolateEnabled() ? L"开" : L"关");
-    m_widgets.push_back(L(L"home.instline", line2, x, iy + 34, 620, 24, 0));
-    std::wstring dirLine = cur ? (L"目录 " + mlc::Utf8ToW(cur->folder)) : L"";
-    m_widgets.push_back(L(L"home.instdir", dirLine, x, iy + 60, cw - 40, 22, 0));
+    m_widgets.push_back(L(L"home.instline", line2, x, iy + 32, 620, 24, 0));
+    std::wstring dirLine = cur ? (L"目录 " + mlc::Utf8ToW(cur->dataDir())) : L"";
+    m_widgets.push_back(L(L"home.instdir", dirLine, x, iy + 56, cw - 40, 22, 0));
 
     m_widgets.push_back(L(L"home.status", m_progressText.empty() ? L"就绪" : m_progressText,
-                          x, iy + 84, cw - 40, 22, 0));
-    m_widgets.push_back(PG(L"home.progress", x, iy + 110, right, iy + 122, m_progress));
+                          x, iy + 80, cw - 40, 22, 0));
+    m_widgets.push_back(PG(L"home.progress", x, iy + 106, right, iy + 118, m_progress));
 
-    // 我的游戏
-    int gy = iy + 152;
+    // 我的游戏（点一下切换当前游戏；启动统一走上面的按钮）
+    int gy = iy + 138;
     m_widgets.push_back(L(L"home.mygames", L"我的游戏", x, gy, 300, 26, 1));
-    m_widgets.push_back(B(L"home.refresh", L"⟳ 刷新", right - 96, gy, right, gy + 26, 0));
+    m_widgets.push_back(L(L"home.mygameshint",
+        L"点卡片切换当前游戏，启动请用右上角「启动游戏」",
+        x + 96, gy + 2, cw - 220, 24, 0));
+    m_widgets.push_back(B(L"home.gosel", L"管理实例…", right - 108, gy, right, gy + 26, 0));
 
     std::vector<GridItem> cards;
     for (auto& in : store.list()) {
+        if (!store.IsVisibleInstance(in)) continue;
         GridItem g;
         g.key = mlc::Utf8ToW(in.id);
         g.title = mlc::Utf8ToW(in.name);
@@ -227,7 +241,6 @@ void Ui::BuildHome() {
         g.badge = in.loader.empty() ? L"" : mlc::Utf8ToW(in.loader);
         g.loaderIcon = in.loader == "fabric" ? 1 : (in.loader == "quilt" ? 2 :
                       (in.loader == "forge" ? 3 : (in.loader == "neoforge" ? 4 : 0)));
-        g.action = L"启动";
         cards.push_back(std::move(g));
     }
     int cardW = 192, cardH = 200;
@@ -238,6 +251,78 @@ void Ui::BuildHome() {
             if (grid.items2[i].key == mlc::Utf8ToW(cur->id)) grid.selIdx = (int)i;
     }
     m_widgets.push_back(grid);
+}
+
+// ------------------------------------------------------------
+// 启动弹窗：实例列表 + 账号 + 启动（照 HMCL 的启动入口）
+// ------------------------------------------------------------
+void Ui::BuildLaunchDialog() {
+    mlc::Store& store = mlc::Store::I();
+    const int dw = std::min(760, m_width - 80);
+    const int dh = std::min(460, m_height - 80);
+    const int dx = (m_width - dw) / 2, dy = (m_height - dh) / 2;
+
+    m_widgets.push_back(L(L"ldlg.title", L"启动游戏", dx + 24, dy + 16, dw - 48, 32, 2));
+    m_widgets.push_back(L(L"ldlg.hint", L"选择要启动的游戏（实例），确认账号后点「启动」",
+                          dx + 24, dy + 48, dw - 48, 22, 0));
+
+    std::vector<GridItem> rows;
+    std::string curId = store.CurrentId();
+    int sel = -1;
+    for (auto& in : store.list()) {
+        GridItem g;
+        g.key = mlc::Utf8ToW(in.id);
+        g.title = mlc::Utf8ToW(in.name);
+        std::wstring sub = L"版本 " + mlc::Utf8ToW(in.versionId);
+        if (!in.loader.empty())
+            sub += L"   ·   " + mlc::Utf8ToW(in.loader) + L" " + mlc::Utf8ToW(in.loaderVersion);
+        g.subtitle = sub;
+        g.badge = store.IsParentOnly(in.folder, in.versionId) ? L"原版组件"
+                  : (in.loader.empty() ? L"原版" : mlc::Utf8ToW(in.loader));
+        mlc::Channel ch = mlc::ClassifyVersion(in.versionId, "release");
+        g.tint = channelColor(ch);
+        g.loaderIcon = in.loader == "fabric" ? 1 : (in.loader == "quilt" ? 2 :
+                      (in.loader == "forge" ? 3 : (in.loader == "neoforge" ? 4 : 0)));
+        if (in.id == curId) sel = (int)rows.size();
+        rows.push_back(std::move(g));
+    }
+
+    Widget list;
+    list.type = Widget::Rows;
+    list.id = L"ldlg.rows";
+    list.items2 = std::move(rows);
+    list.rc = { dx + 16, dy + 78, dx + dw - 16, dy + dh - 108 };
+    list.rowH = 62;
+    list.selIdx = sel;
+    m_widgets.push_back(list);
+    if (list.items2.empty())
+        pushEmptyHint(m_widgets, list.rc, L"还没有游戏：先去「下载」安装一个版本。");
+
+    // 账号
+    m_launchAccKeys.clear();
+    std::vector<std::wstring> accNames;
+    auto& accs = store.accounts();
+    std::string curKey = store.AccountKey();
+    int accSel = 0;
+    for (size_t i = 0; i < accs.size(); ++i) {
+        std::string k = accs[i].uuid.empty() ? accs[i].name : accs[i].uuid;
+        m_launchAccKeys.push_back(k);
+        std::wstring nm = mlc::Utf8ToW(accs[i].name);
+        nm += accs[i].type == "msa" ? L"（正版）" : L"（离线）";
+        if (k == curKey) accSel = (int)i;
+        accNames.push_back(nm);
+    }
+    if (accNames.empty()) accNames.push_back(L"（未登录，先去「账号」页登录）");
+
+    m_widgets.push_back(L(L"ldlg.acclbl", L"账号", dx + 16, dy + dh - 96, 48, 26, 0));
+    m_widgets.push_back(CB(L"ldlg.acc", accNames, accSel, dx + 68, dy + dh - 100,
+                           dx + 320, dy + dh - 70));
+
+    m_widgets.push_back(B(L"ldlg.cancel", L"取消", dx + dw - 232, dy + dh - 66,
+                          dx + dw - 132, dy + dh - 26, 0));
+    m_widgets.push_back(B(L"ldlg.start", m_running ? L"结束游戏" : L"启动", dx + dw - 124,
+                          dy + dh - 66, dx + dw - 16, dy + dh - 26,
+                          m_running ? theme::RED : kPrimary));
 }
 
 // ============================================================
@@ -264,11 +349,13 @@ void Ui::BuildVersions() {
 
     m_widgets.push_back(L(L"ver.title", L"版本管理", x, y, 260, 32, 2));
 
-    // 实例选择下拉
+    // 实例选择下拉（被加载器引用的原版组件版本加后缀提示，索引仍与 store.list() 对齐）
     std::vector<std::wstring> names;
     int sel = 0;
     for (size_t i = 0; i < store.list().size(); ++i) {
-        names.push_back(mlc::Utf8ToW(store.list()[i].name));
+        std::wstring nm = mlc::Utf8ToW(store.list()[i].name);
+        if (!store.IsVisibleInstance(store.list()[i])) nm += L"（原版组件）";
+        names.push_back(nm);
         if (store.list()[i].id == mlc::WToUtf8(m_verInstId)) sel = (int)i;
     }
     if (names.empty()) names.push_back(L"（无游戏）");
@@ -544,7 +631,7 @@ void Ui::BuildVersions() {
 }
 
 // ============================================================
-// 版本选择（文件夹注册表 + 一键切换）
+// 版本选择（照 HMCL：左边游戏目录抽屉 + 右边实例列表）
 // ============================================================
 void Ui::BuildGameSelect() {
     mlc::Store& store = mlc::Store::I();
@@ -552,63 +639,147 @@ void Ui::BuildGameSelect() {
     int right = m_width - 32;
     int cw = right - x;
 
-    m_widgets.push_back(L(L"gs.title", L"版本选择", x, y, 260, 32, 2));
-    m_widgets.push_back(L(L"gs.sub",
-        L"游戏文件夹可以先添加、后下载；一个文件夹放多个版本，可随时一键切换。",
-        x, y + 36, cw, 24, 0));
-
-    m_widgets.push_back(B(L"gs.add", L"＋ 添加文件夹", x, y + 66, x + 156, y + 100, kPrimary));
-    m_widgets.push_back(B(L"gs.removefolder", L"移除该文件夹", x + 164, y + 66, x + 316,
-                          y + 100, 0));
-    m_widgets.push_back(B(L"gs.openfolder", L"打开该文件夹", x + 324, y + 66, x + 470,
-                          y + 100, 0));
-    m_widgets.push_back(B(L"gs.del", L"卸载选中游戏", x + 478, y + 66, x + 632, y + 100,
-                          theme::RED));
-    m_widgets.push_back(B(L"gs.delfile", L"连同文件删除", x + 640, y + 66, x + 784, y + 100, 0));
-    m_widgets.push_back(B(L"gs.checkall", L"检查完整性", x + 792, y + 66, x + 920, y + 100, 0));
-
     auto& folders = store.folders();
     if (m_gsFolderSel > (int)folders.size()) m_gsFolderSel = 0;
 
-    // 文件夹切换
-    std::vector<std::wstring> opts;
-    opts.push_back(L"全部文件夹（" + std::to_wstring((int)store.list().size()) + L" 个游戏）");
-    for (size_t i = 0; i < folders.size(); ++i) {
-        int n = store.CountInstancesInFolder(folders[i]);
-        opts.push_back(fs::path(fs::u8path(folders[i])).filename().u8string().empty()
-                       ? mlc::Utf8ToW(folders[i])
-                       : mlc::Utf8ToW(fs::path(fs::u8path(folders[i])).filename().u8string())
-                         + L"（" + std::to_wstring(n) + L" 个）");
+    // ---------------- 左：游戏目录（HMCL 的导航抽屉）----------------
+    const int lw = 208;
+    m_widgets.push_back(L(L"gs.title", L"游戏目录", x, y, lw, 30, 1));
+
+    std::vector<GridItem> folderRows;
+    int visCount = 0;
+    for (auto& in : store.list()) if (store.IsVisibleInstance(in)) ++visCount;
+    {
+        GridItem all;
+        all.key = L"\x01all";
+        all.title = L"全部实例";
+        all.subtitle = L"所有已登记的游戏文件夹";
+        all.badge = std::to_wstring(visCount);
+        all.tint = theme::ACCENT;
+        folderRows.push_back(all);
+        for (size_t i = 0; i < folders.size(); ++i) {
+            std::wstring display = mlc::Utf8ToW(folders[i]);
+            std::wstring fname = mlc::Utf8ToW(
+                fs::path(fs::u8path(folders[i])).filename().u8string());
+            if (!fname.empty()) display = fname;
+            GridItem g;
+            g.key = L"\x01fold:" + mlc::Utf8ToW(folders[i]);
+            g.title = display;
+            g.subtitle = mlc::Utf8ToW(folders[i]);
+            int cnt = 0;
+            for (auto& in : store.list())
+                if (mlc::SamePath(in.folder, folders[i]) && store.IsVisibleInstance(in)) ++cnt;
+            g.badge = std::to_wstring(cnt);
+            g.loaderIcon = 0;
+            g.tint = RGB(96, 125, 139);
+            folderRows.push_back(std::move(g));
+        }
     }
-    m_widgets.push_back(L(L"gs.folderlbl", L"当前文件夹", x, y + 112, 108, 28, 1));
-    m_widgets.push_back(CB(L"gs.folder", opts, m_gsFolderSel, x + 112, y + 110, x + 480,
-                           y + 140));
+    {
+        Widget fl;
+        fl.type = Widget::Rows;
+        fl.id = L"gs.folders";
+        fl.items2 = std::move(folderRows);
+        fl.rc = { x, y + 34, x + lw, m_height - 118 };
+        fl.rowH = 56;
+        fl.selIdx = m_gsFolderSel;
+        m_widgets.push_back(fl);
+    }
+    m_widgets.push_back(B(L"gs.add", L"＋ 添加文件夹", x, m_height - 112, x + lw,
+                          m_height - 78, kPrimary));
+    m_widgets.push_back(B(L"gs.openfolder", L"打开目录", x, m_height - 72, x + 100,
+                          m_height - 38, 0));
+    m_widgets.push_back(B(L"gs.removefolder", L"移除", x + 106, m_height - 72, x + lw,
+                          m_height - 38, 0));
 
+    // ---------------- 右：实例列表 ----------------
+    const int rx = x + lw + 16;
+    const int rw = right - rx;
+
+    m_widgets.push_back(L(L"gs.listtitle",
+        L"实例（" + std::to_wstring(visCount) + L"）", rx, y, 240, 30, 1));
+    {
+        int hidden = store.HiddenParentCount();
+        if (hidden > 0) {
+            m_widgets.push_back(L(L"gs.hiddenhint",
+                L"（另有 " + std::to_wstring(hidden) + L" 个原版组件版本被加载器引用，默认不单列）",
+                rx + 120, y + 4, rw - 132, 24, 0));
+        }
+    }
+
+    m_widgets.push_back(E(L"gs.search", m_gsSearch, rx, y + 38, rx + std::min(300, rw - 320),
+                          y + 70, L"搜索实例名 / 版本号"));
+    m_widgets.push_back(B(L"gs.searchbtn", L"搜索", rx + std::min(300, rw - 320) + 8, y + 38,
+                          rx + std::min(300, rw - 320) + 88, y + 70, 0));
+    m_widgets.push_back(B(L"gs.showparents",
+                          m_showHiddenVersions ? L"隐藏原版组件" : L"显示原版组件",
+                          rx + std::min(300, rw - 320) + 96, y + 38,
+                          rx + std::min(300, rw - 320) + 236, y + 70, 0,
+                          m_showHiddenVersions));
+
+    // 工具栏（对当前选中实例生效）
+    int ty = y + 80;
+    const int bw = 108, bgap = 6;
+    auto tb = [&](const wchar_t* id, const wchar_t* text, int i, COLORREF accent = 0,
+                  bool active = false) {
+        int bx = rx + i * (bw + bgap);
+        m_widgets.push_back(B(id, text, bx, ty, bx + bw, ty + 32, accent, active));
+    };
+    tb(L"gs.launch", L"▶ 启动", 0, kPrimary);
+    tb(L"gs.checkall", L"检查完整性", 1);
+    tb(L"gs.opendir", L"打开目录", 2);
+    tb(L"gs.delfile", L"删除实例", 3, theme::RED);
+
+    // 实例行
     std::string curFolder = (m_gsFolderSel > 0 && m_gsFolderSel <= (int)folders.size())
-                            ? folders[m_gsFolderSel - 1] : store.CurrentFolder();
-    m_widgets.push_back(L(L"gs.folderpath", mlc::Utf8ToW(curFolder),
-                          x + 490, y + 112, std::max(120, right - (x + 490)), 28, 0));
-
-    // 网格 → 平铺列表（HMCL 式整行）
-    std::vector<GridItem> rows;
+                            ? folders[m_gsFolderSel - 1] : std::string();
     std::string curId = store.CurrentId();
+    std::wstring filter = m_gsSearch;
+    std::transform(filter.begin(), filter.end(), filter.begin(), ::towlower);
+
+    std::vector<GridItem> rows;
     int sel = -1;
     for (auto& in : store.list()) {
-        if (m_gsFolderSel > 0 && m_gsFolderSel <= (int)folders.size() &&
-            in.folder != folders[m_gsFolderSel - 1]) continue;
+        if (!m_showHiddenVersions && !store.IsVisibleInstance(in)) continue;
+        if (!curFolder.empty() && !mlc::SamePath(in.folder, curFolder)) continue;
+
+        std::wstring title = mlc::Utf8ToW(in.name);
+        std::wstring sub = L"版本 " + mlc::Utf8ToW(in.versionId);
+        if (in.loader.empty()) sub += L"   ·   原版";
+        else sub += L"   ·   " + mlc::Utf8ToW(in.loader) + L" " + mlc::Utf8ToW(in.loaderVersion);
+        if (curFolder.empty()) {
+            std::wstring fname = mlc::Utf8ToW(
+                fs::path(fs::u8path(in.folder)).filename().u8string());
+            if (!fname.empty()) sub += L"   ·   " + fname;
+        }
+        if (in.lastPlayed > 0) {
+            time_t t = (time_t)in.lastPlayed;
+            struct tm lt {};
+            localtime_s(&lt, &t);
+            wchar_t buf[32] = { 0 };
+            wcsftime(buf, 31, L"%Y-%m-%d %H:%M", &lt);
+            sub += L"   ·   最近 " + std::wstring(buf);
+        }
+
+        if (!filter.empty()) {
+            std::wstring hay = title + L" " + mlc::Utf8ToW(in.versionId);
+            std::transform(hay.begin(), hay.end(), hay.begin(), ::towlower);
+            if (hay.find(filter) == std::wstring::npos) continue;
+        }
+
         GridItem g;
         g.key = mlc::Utf8ToW(in.id);
-        g.title = mlc::Utf8ToW(in.name);
-        std::wstring folderName = mlc::Utf8ToW(
-            fs::path(fs::u8path(in.folder)).filename().u8string());
-        g.subtitle = mlc::Utf8ToW(in.versionId) + L"   ·   文件夹 " + folderName;
+        g.title = title;
+        g.subtitle = sub;
+        if (!in.iconPath.empty()) g.cover = mlc::Utf8ToW(in.iconPath);   // 实例自定义图标
         mlc::Channel ch = mlc::ClassifyVersion(in.versionId, "release");
         g.tint = channelColor(ch);
-        g.badge = in.loader.empty() ? mlc::ChannelName(ch) : mlc::Utf8ToW(in.loader);
         g.loaderIcon = in.loader == "fabric" ? 1 : (in.loader == "quilt" ? 2 :
                       (in.loader == "forge" ? 3 : (in.loader == "neoforge" ? 4 : 0)));
-        g.action = L"启动";
-        if (in.id == curId) { sel = (int)rows.size(); }
+        g.badge = in.loader.empty() ? mlc::ChannelName(ch) : mlc::Utf8ToW(in.loader);
+        g.action = (m_running && in.id == curId) ? L"结束" : L"启动";
+        g.actionDanger = (m_running && in.id == curId);
+        if (in.id == curId) sel = (int)rows.size();
         rows.push_back(std::move(g));
     }
 
@@ -616,14 +787,13 @@ void Ui::BuildGameSelect() {
     list.type = Widget::Rows;
     list.id = L"gs.rows";
     list.items2 = std::move(rows);
-    list.rc = { x, y + 148, right, m_height - 24 };
-    list.rowH = 62;
+    list.rc = { rx, ty + 40, right, m_height - 24 };
+    list.rowH = 66;
     list.selIdx = sel;
     m_widgets.push_back(list);
-
     if (list.items2.empty()) {
         pushEmptyHint(m_widgets, list.rc,
-            L"这个文件夹还没有游戏。到「下载 → 游戏」安装时，把上面的「安装到」选成这个文件夹即可。");
+            L"这里还没有游戏：点「下载 → 游戏」安装一个，或用左下角「添加文件夹」导入已有的 .minecraft。");
     }
 }
 
@@ -654,21 +824,54 @@ void Ui::BuildDownload() {
         // 来自「文件夹注册表」：空文件夹也能作为安装目标
         for (auto& f : store.folders()) m_dlFolders.push_back(mlc::Utf8ToW(f));
         if (m_dlFolders.empty()) {
-            std::string def = mlc::WToUtf8(mlc::BaseDir()) + "\\games\\default";
+            // 照 HMCL 便携模式：默认就是 <主程序>\.minecraft
+            std::string def = mlc::Store::DefaultFolder();
             std::string derr;
             store.AddFolderPath(def, derr);
             m_dlFolders.push_back(mlc::Utf8ToW(def));
         }
         std::wstring cur = mlc::Utf8ToW(store.CurrentFolder());
         for (size_t i = 0; i < m_dlFolders.size(); ++i)
-            if (m_dlFolders[i] == cur) m_dlFolderSel = (int)i;
+            if (mlc::SamePath(mlc::WToUtf8(m_dlFolders[i]), store.CurrentFolder()))
+                m_dlFolderSel = (int)i;
     }
     if (m_dlFolderSel >= (int)m_dlFolders.size()) m_dlFolderSel = 0;
-    m_widgets.push_back(L(L"dl.folderlbl", L"安装到", x, y + 78, 60, 28, 0));
-    m_widgets.push_back(CB(L"dl.folder", m_dlFolders, m_dlFolderSel,
-                           x + 66, y + 76, x + 470, y + 106));
-    m_widgets.push_back(L(L"dl.folderhint", L"（更多文件夹在「版本选择」里添加）",
-                          x + 480, y + 78, std::max(120, right - (x + 480)), 28, 0));
+    // 安装目标：装游戏 → 选文件夹；下载内容（模组/资源包/光影/世界）→ 选实例（照 HMCL）
+    if (m_dlCat == 0) {
+        m_widgets.push_back(L(L"dl.folderlbl", L"安装到", x, y + 78, 60, 28, 0));
+        m_widgets.push_back(CB(L"dl.folder", m_dlFolders, m_dlFolderSel,
+                               x + 66, y + 76, x + 470, y + 106));
+        m_widgets.push_back(L(L"dl.folderhint", L"（更多文件夹在「版本选择」里添加）",
+                              x + 480, y + 78, std::max(120, right - (x + 480)), 28, 0));
+    } else {
+        // 内容下载：目标实例决定文件落在 mods / resourcepacks / shaderpacks / saves
+        m_dlInstIds.clear();
+        std::vector<std::wstring> instNames;
+        std::string curId = store.CurrentId();
+        int isel = 0;
+        for (auto& in : store.list()) {
+            if (!store.IsVisibleInstance(in)) continue;
+            m_dlInstIds.push_back(in.id);
+            std::wstring nm = mlc::Utf8ToW(in.name);
+            if (!in.loader.empty()) nm += L"  [" + mlc::Utf8ToW(in.loader) + L"]";
+            if (in.id == curId) isel = (int)instNames.size();
+            instNames.push_back(nm);
+        }
+        if (instNames.empty()) instNames.push_back(L"（还没有游戏实例）");
+        m_widgets.push_back(L(L"dl.folderlbl", L"下载到", x, y + 78, 60, 28, 0));
+        m_widgets.push_back(CB(L"dl.inst", instNames, isel, x + 66, y + 76, x + 400, y + 106));
+        mlc::Instance* di = CurInst();
+        std::string dest;
+        if (di) {
+            dest = m_dlCat == 1 ? di->modsDir()
+                 : m_dlCat == 2 ? di->resourcePacksDir()
+                 : m_dlCat == 3 ? di->shaderPacksDir() : di->savesDir();
+        }
+        m_widgets.push_back(L(L"dl.folderhint",
+            dest.empty() ? L"（先在「版本选择」里选一个游戏）"
+                         : (L"→ " + mlc::Utf8ToW(dest)),
+            x + 408, y + 78, std::max(120, right - (x + 408)), 28, 0));
+    }
 
     int cy = y + 116;
 
@@ -937,6 +1140,15 @@ void Ui::BuildDownload() {
     std::wstring dlStatus = m_dlSearching ? L"正在搜索…" : m_progressText;
     if (m_dlSearch.empty() || !m_hits.empty())
         dlStatus += L"  ·  第 " + std::to_wstring(m_dlOffset / 20 + 1) + L" 页";
+    {
+        // 照 HMCL：把这个分类的真实保存目录写出来（资源包 → resourcepacks，光影 → shaderpacks）
+        mlc::Instance* di = CurInst();
+        std::string dest;
+        if (m_dlCat == 2) dest = di ? di->resourcePacksDir() : "";
+        else if (m_dlCat == 3) dest = di ? di->shaderPacksDir() : "";
+        if (!dest.empty()) dlStatus += L"  ·  保存到 " + mlc::Utf8ToW(dest);
+        else if (!di) dlStatus += L"  ·  先选一个游戏实例";
+    }
     m_widgets.push_back(L(L"dl.status", dlStatus,
         x + 392, m_height - 96, cw - 400, 38, 0));
 }
@@ -1050,9 +1262,15 @@ void Ui::BuildModDownload() {
         m_widgets.push_back(L(L"ad.namelbl", L"文件名", dx + 16, dy + dh - 142, 70, 22, 0));
         m_widgets.push_back(E(L"ad.fname", m_addonFileName, dx + 88, dy + dh - 146,
                               dx + dw - 16, dy + dh - 114, L""));
-        m_widgets.push_back(L(L"ad.status",
-            m_addonDepsLoading ? L"正在加载前置内容…" : L"确认后下载到当前实例的 mods 目录",
-            dx + 16, dy + dh - 104, dw - 32, 22, 0));
+        {
+            // 把真实保存位置写清楚（HMCL 也是「装进当前实例的 mods」）
+            mlc::Instance* di = CurInst();
+            std::wstring dest = di ? (L"保存到 " + mlc::Utf8ToW(di->modsDir()))
+                                   : L"还没有选择游戏实例：只能「下载到本地文件夹」";
+            m_widgets.push_back(L(L"ad.status",
+                m_addonDepsLoading ? L"正在加载前置内容…" : dest,
+                dx + 16, dy + dh - 104, dw - 32, 22, 0));
+        }
 
         m_widgets.push_back(B(L"ad.install", L"安装到当前实例", dx + dw - 446, dy + dh - 66,
                               dx + dw - 264, dy + dh - 26, kPrimary));
@@ -1083,8 +1301,9 @@ void Ui::BuildModDownload() {
         m_widgets.push_back(B(L"ad.page", L"官方页面", right - 132, cy, right, cy + 30));
 
         GridItem head;
-        head.title = addon::LocalizedTitle(m_addonProject.projectId, m_addonProject.title);
-        head.subtitle = m_addonProject.desc;
+        head.title = mlc::Utf8ToW(addon::LocalizedTitle(m_addonProject.projectId,
+            addon::LocalizedTitle(m_addonProject.slug, m_addonProject.title)));
+        head.subtitle = mlc::Utf8ToW(m_addonProject.desc);
         head.cover = mlc::Utf8ToW(m_addonProject.cover);
         for (const auto& c : m_addonProject.categories) {
             std::wstring t = mlc::Utf8ToW(addon::LocalizedCategory(c));
@@ -1106,7 +1325,7 @@ void Ui::BuildModDownload() {
 
         std::vector<GridItem> rows;
         mlc::Instance* in = CurInst();
-        std::string curVer = in ? in->versionId : mlc::WToUtf8(m_addonMcVer);
+        std::string curVer = in ? mcBaseVerOf(in) : mlc::WToUtf8(m_addonMcVer);
         std::string curLoader = in ? in->loader : "";
         auto supported = addon::SupportedLoaders(curLoader, curVer, in ? in->modsDir() : "");
         auto loaderMatch = [&](const addon::Version& v) {
@@ -1207,8 +1426,9 @@ void Ui::BuildModDownload() {
     for (const auto& h : m_addonHits) {
         GridItem g;
         g.key = mlc::Utf8ToW(h.projectId);
-        g.title = addon::LocalizedTitle(h.projectId, h.title);
-        g.subtitle = h.desc;
+        g.title = mlc::Utf8ToW(addon::LocalizedTitle(h.projectId,
+            addon::LocalizedTitle(h.slug, h.title)));
+        g.subtitle = mlc::Utf8ToW(h.desc);
         g.cover = mlc::Utf8ToW(h.cover);
         for (const auto& c : h.categories) {
             std::wstring t = mlc::Utf8ToW(addon::LocalizedCategory(c));
@@ -1223,6 +1443,21 @@ void Ui::BuildModDownload() {
     list.rc = { x, cy + 138, right, m_height - 20 };
     list.rowH = 74;
     m_widgets.push_back(list);
+    
+    // [AutoFix] 首次进入自动搜索
+    if (m_addonHits.empty() && !m_dlSearching && !m_addonAutoSearched) {
+        m_addonAutoSearched = true;
+        // 通过 sink 投递事件，避免在 Build 过程中启动线程
+        if (m_sink) m_sink->post((int)launcher::Ev::Info, "__autosearch_addon__");
+    }
+if (m_addonHits.empty() && !m_dlSearching && !m_addonAutoSearched) {
+        m_addonAutoSearched = true;
+        if (m_sink) m_sink->post((int)launcher::Ev::Info, "__autosearch_addon__");
+    }
+    if (m_addonHits.empty() && !m_dlSearching && !m_addonAutoSearched) {
+        m_addonAutoSearched = true;
+        if (m_sink) m_sink->post((int)launcher::Ev::Info, "__autosearch_addon__");
+    }
     m_widgets.push_back(L(L"addon.status",
         m_dlSearching ? L"正在搜索…"
                       : (m_addonHits.empty() ? L"搜索无结果" : L""),
@@ -1606,3 +1841,6 @@ void Ui::BuildSettings() {
 }
 
 } // namespace ui
+
+
+

@@ -84,7 +84,7 @@ def main():
         "// Data source: HMCL assets/addon/mod.csv + I18N_zh_Hans.properties (GPL-3.0-or-later).\n"
         "#include \"AddonRepo.h\"\n\n"
         "namespace addon {\nnamespace names {\n\n"
-        "const char* const kData = R\"MCLDATA(" + body + ")MCLDATA\";\n\n"
+        "extern const char* const kData = R\"MCLDATA(" + body + ")MCLDATA\";\n\n"
         "} // namespace names\n} // namespace addon\n"
     )
     OUT.write_text(src, encoding="utf-8-sig")

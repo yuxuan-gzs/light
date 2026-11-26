@@ -1,4 +1,4 @@
-// Ui.h — 自绘主窗口（HMCL 风格 + PCL2 磨砂质感）
+﻿// Ui.h — 自绘主窗口（HMCL 风格 + PCL2 磨砂质感）
 #pragma once
 
 #include "Theme.h"
@@ -156,6 +156,7 @@ private:
     void DrawDownloadDialog(Gdiplus::Graphics& g);
     void DrawAddonDialog(Gdiplus::Graphics& g);   // 模组版本确认 / 更新日志弹窗底图
     void DrawOfflineDialog(Gdiplus::Graphics& g);
+    void DrawLaunchDialog(Gdiplus::Graphics& g);  // 启动弹窗（选实例 / 账号）
     void DrawToast(Gdiplus::Graphics& g);
 
     // ---- 命中/交互 ----
@@ -234,6 +235,8 @@ private:
 
     // 皮肤预览（账号页右侧，可鼠标交互）
     RECT m_skinBox{ 0, 0, 0, 0 };
+    bool m_addonAutoSearched = false;   // 首次进入模组下载页自动搜索标记
+
     float m_skinYaw = 22.0f;
     float m_skinPitch = -6.0f;
     float m_skinZoom = 1.0f;
@@ -255,6 +258,13 @@ private:
 
     // 版本选择：文件夹切换（0 = 全部）
     int m_gsFolderSel = 0;
+    std::wstring m_gsSearch;        // 版本选择页的搜索框（照 HMCL 实例列表）
+    bool m_showHiddenVersions = false;   // 是否显示被加载器引用的原版「组件版本」
+
+    // 启动弹窗（照 HMCL：首页只留一个启动按钮，点开选实例 / 账号再启动）
+    bool m_showLaunchDlg = false;
+    std::vector<std::string> m_launchAccKeys;   // 弹窗里账号下拉 → key
+    void BuildLaunchDialog();
 
     // 版本管理
     int m_verTab = TabMods;
@@ -281,6 +291,7 @@ private:
     std::wstring m_dlLoaderVer;
     int m_dlFolderSel = 0;
     std::vector<std::wstring> m_dlFolders;   // 已注册的文件夹（去重）
+    std::vector<std::string> m_dlInstIds;    // 下载页「下载到实例」下拉 → 实例 id
     std::vector<content::Hit> m_hits;
     bool m_dlSearching = false;
     int m_dlOffset = 0;                // 内容搜索分页偏移（每页 20）
@@ -305,6 +316,7 @@ private:
     bool m_addonDepsLoading = false;
     std::wstring m_addonChangelog;
     bool m_addonShowChangelog = false;
+    std::wstring m_addonFileName;      // 版本确认框里的目标文件名
 
     // 下载页 · 世界：0 = CurseForge 在线，1 = 本地存档
     int m_worldSource = 0;

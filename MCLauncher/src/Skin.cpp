@@ -178,6 +178,9 @@ bool ProbeCape(const std::wstring& pngPath) {
 void DrawAvatar(Gdiplus::Graphics& g, const Model* m, const Gdiplus::RectF& rc, float radius) {
     if (!m || !m->head.f[F_FRONT]) return;
     Gdiplus::GraphicsState st = g.Save();
+    // 皮肤是 8×8 的像素画，放大必须用最近邻，否则放大到 40px 会糊成一团（HMCL 也是硬边）
+    g.SetInterpolationMode(Gdiplus::InterpolationModeNearestNeighbor);
+    g.SetPixelOffsetMode(Gdiplus::PixelOffsetModeHalf);
     Gdiplus::GraphicsPath* clip = theme::RoundRectPath(rc.X, rc.Y, rc.Width, rc.Height, radius);
     g.SetClip(clip);
 
@@ -247,6 +250,9 @@ void AddBox(std::vector<FaceDraw>& out, const Tex6& t, float sx, float sy, float
 void DrawCharacter(Gdiplus::Graphics& g, const Model* m, const Model* cape,
                    const Gdiplus::RectF& rc, float yawDeg, float pitchDeg, float zoom) {
     if (!m) return;
+    // 皮肤纹理是像素画：贴图放大用最近邻，否则 3D 小人身上会一片糊
+    const Gdiplus::GraphicsState gs0 = g.Save();
+    g.SetInterpolationMode(Gdiplus::InterpolationModeNearestNeighbor);
     const float yaw = yawDeg * 3.14159265f / 180.0f;
     const float pitch = pitchDeg * 3.14159265f / 180.0f;
 
@@ -322,6 +328,7 @@ void DrawCharacter(Gdiplus::Graphics& g, const Model* m, const Model* cape,
         path.AddPolygon(quad, 4);
         g.FillPath(&brush, &path);
     }
+    g.Restore(gs0);
 }
 
 } // namespace skin

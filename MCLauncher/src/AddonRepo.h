@@ -25,6 +25,7 @@ struct Hit {
     std::string iconUrl;
     std::string author;
     std::vector<std::string> categories;  // display_categories，已按 HMCL TAG_COMPARATOR 排序
+    std::string cover;       // 本地缓存后的封面路径（UI 层填充）
     std::string pageUrl;
 };
 

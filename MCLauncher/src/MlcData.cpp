@@ -1,4 +1,4 @@
-// MlcData.cpp — Data/mlc 数据层实现
+﻿// MlcData.cpp — Data/mlc 数据层实现
 #include "MlcData.h"
 #include "Json.h"
 
@@ -78,6 +78,19 @@ std::string JoinPath(const std::string& a, const std::string& b) {
     char last = a.back();
     if (last == '\\' || last == '/') return a + b;
     return a + "\\" + b;
+}
+
+// 统一分隔符 + 去掉结尾分隔符（保留 "D:\" 这种根）
+std::string NormalizePath(const std::string& p) {
+    std::string s = p;
+    for (char& c : s) if (c == '/') c = '\\';
+    while (s.size() > 3 && !s.empty() && s.back() == '\\') s.pop_back();
+    return s;
+}
+
+bool SamePath(const std::string& a, const std::string& b) {
+    if (a.empty() || b.empty()) return a.empty() && b.empty();
+    return _stricmp(NormalizePath(a).c_str(), NormalizePath(b).c_str()) == 0;
 }
 
 bool DirExists(const std::string& p) {
@@ -323,6 +336,8 @@ Store& Store::I() {
 Store::Store() {
     EnsureDirs();
     Load();
+    // 读注册表之后立刻和磁盘对账：手动删掉版本目录后不会再被当成「已安装」
+    SyncWithDisk();
 }
 
 Settings& Store::spec() { return m_spec; }
@@ -379,6 +394,16 @@ void Store::Load() {
                 }
             } catch (...) {}
         }
+        // 首次运行（或最后一个文件夹被移除）：照 HMCL 把 <主程序>\.minecraft 作为默认游戏目录
+        if (m_folders.empty()) {
+            std::string def = DefaultFolder();
+            std::error_code ec;
+            fs::create_directories(fs::u8path(def), ec);
+            m_folders.push_back(def);
+            m_curFolder = def;
+            SaveFoldersFile();
+        }
+        if (m_curFolder.empty()) m_curFolder = m_folders.front();
     }
 
     // ---- 账号 ----
@@ -540,7 +565,7 @@ bool Store::AddFolderPath(const std::string& folder, std::string& err) {
     std::error_code ec;
     fs::create_directories(fs::u8path(f), ec);   // 不存在就建：允许先把文件夹准备好再下载
     for (auto& x : m_folders) {
-        if (x == f) {
+        if (SamePath(x, f)) {
             if (m_curFolder.empty()) m_curFolder = f;
             SaveFoldersFile();
             err = "该文件夹已在列表中";
@@ -555,7 +580,7 @@ bool Store::AddFolderPath(const std::string& folder, std::string& err) {
 
 void Store::EnsureFolder(const std::string& folder) {
     if (folder.empty()) return;
-    for (auto& x : m_folders) if (x == folder) return;
+    for (auto& x : m_folders) if (SamePath(x, folder)) return;
     m_folders.push_back(folder);
     if (m_curFolder.empty()) m_curFolder = folder;
     SaveFoldersFile();
@@ -568,7 +593,7 @@ bool Store::RemoveFolderPath(const std::string& folder, std::string& err) {
         return false;
     }
     for (size_t i = 0; i < m_folders.size(); ++i) {
-        if (m_folders[i] != folder) continue;
+        if (!SamePath(m_folders[i], folder)) continue;
         m_folders.erase(m_folders.begin() + (std::ptrdiff_t)i);
         if (m_curFolder == folder) m_curFolder = m_folders.empty() ? "" : m_folders.front();
         SaveFoldersFile();
@@ -580,7 +605,7 @@ bool Store::RemoveFolderPath(const std::string& folder, std::string& err) {
 
 int Store::CountInstancesInFolder(const std::string& folder) {
     int n = 0;
-    for (auto& in : m_inst) if (in.folder == folder) ++n;
+    for (auto& in : m_inst) if (SamePath(in.folder, folder)) ++n;
     return n;
 }
 
@@ -859,7 +884,7 @@ std::vector<std::string> Store::VersionsInFolder(const std::string& folder) {
 }
 
 bool Store::FolderRegistered(const std::string& folder) {
-    for (auto& in : m_inst) if (in.folder == folder) return true;
+    for (auto& in : m_inst) if (SamePath(in.folder, folder)) return true;
     return false;
 }
 
@@ -888,7 +913,7 @@ int Store::AddFolder(const std::wstring& folderW, std::string& err) {
     for (const auto& vid : vers) {
         bool dup = false;
         for (auto& in : m_inst) {
-            if (in.folder == folder && in.versionId == vid) { dup = true; break; }
+            if (SamePath(in.folder, folder) && in.versionId == vid) { dup = true; break; }
         }
         if (dup) continue;
         AddInstance(folder, vid, "");
@@ -938,9 +963,260 @@ std::string Store::AddInstance(const std::string& folder, const std::string& ver
 
 std::string Store::EnsureInstance(const std::string& folder, const std::string& versionId) {
     for (auto& in : m_inst) {
-        if (in.folder == folder && in.versionId == versionId) return in.id;
+        if (SamePath(in.folder, folder) && in.versionId == versionId) return in.id;
     }
     return AddInstance(folder, versionId, "");
+}
+
+// ---------------------------------------------------------------
+// 版本 JSON 读取（inheritsFrom / id）
+// ---------------------------------------------------------------
+std::string Store::ParentOf(const std::string& folder, const std::string& versionId) {
+    std::string p = JoinPath(JoinPath(JoinPath(folder, "versions"), versionId),
+                             versionId + ".json");
+    std::string txt = ReadTextFile(p);
+    if (txt.empty()) return std::string();
+    try {
+        json::Value j = json::parse(txt);
+        return j.get("inheritsFrom").asString();
+    } catch (...) { return std::string(); }
+}
+
+std::string Store::JsonIdOf(const std::string& folder, const std::string& versionId) {
+    std::string p = JoinPath(JoinPath(JoinPath(folder, "versions"), versionId),
+                             versionId + ".json");
+    std::string txt = ReadTextFile(p);
+    if (txt.empty()) return std::string();
+    try {
+        json::Value j = json::parse(txt);
+        std::string id = j.get("id").asString();
+        return id.empty() ? versionId : id;
+    } catch (...) { return std::string(); }
+}
+
+std::string Store::DefaultFolder() {
+    // HMCL 便携模式：默认游戏目录就在启动器旁边（.minecraft）
+    return WToUtf8(ExeDir() + L"\\.minecraft");
+}
+
+// 「这个是加载器版本吗」——只按 id 判断，和 DetectLoader 的规则保持一致
+static bool isLoaderVersionId(const std::string& id) {
+    std::string low = id;
+    std::transform(low.begin(), low.end(), low.begin(),
+                   [](unsigned char c) { return (char)std::tolower(c); });
+    return low.find("fabric-loader") != std::string::npos ||
+           low.find("quilt-loader") != std::string::npos ||
+           low.find("forge") != std::string::npos ||
+           low.find("neoforge") != std::string::npos ||
+           low.find("liteloader") != std::string::npos ||
+           low.find("optifine") != std::string::npos;
+}
+
+std::string Store::AdoptLoaderVersion(const std::string& folder,
+                                      const std::string& loaderVersionId) {
+    if (folder.empty() || loaderVersionId.empty()) return std::string();
+
+    // installer 写在版本 JSON 里的父版本；读不到就认为它自己是独立版本
+    std::string parent = ParentOf(folder, loaderVersionId);
+
+    int exactIdx = -1;       // 已经指向加载器版本的记录
+    int vanillaIdx = -1;     // 原版实例（1.20.1）
+    int loaderIdx = -1;      // 同一父版本的旧加载器实例（1.20.1-forge-47.1）
+    for (size_t i = 0; i < m_inst.size(); ++i) {
+        Instance& in = m_inst[i];
+        if (!SamePath(in.folder, folder)) continue;
+        if (in.versionId == loaderVersionId) { if (exactIdx < 0) exactIdx = (int)i; continue; }
+        if (parent.empty()) continue;
+        // 原版本身：它的 versionId 就是加载器版本的父版本
+        if (in.versionId == parent) { if (vanillaIdx < 0) vanillaIdx = (int)i; continue; }
+        // 同一个父版本下的另一个加载器版本（升级 / 换加载器）
+        std::string pid = ParentOf(folder, in.versionId);
+        if (pid != parent) continue;
+        if (isLoaderVersionId(in.versionId)) { if (loaderIdx < 0) loaderIdx = (int)i; }
+        else if (vanillaIdx < 0) vanillaIdx = (int)i;
+    }
+
+    auto applyName = [&](Instance& keep, const Instance& from) {
+        // 保留用户给这个游戏起的名字：自动名（= 版本 id 清洗后的样子）让位给真实名字
+        if (keep.name == WToUtf8(DefaultNameFromVersion(keep.versionId)) && !from.name.empty())
+            keep.name = from.name;
+        if (from.lastPlayed > keep.lastPlayed) keep.lastPlayed = from.lastPlayed;
+    };
+
+    // 情况 A：已经有实例指向这个加载器版本（安装过程里被 UI 的磁盘对账先登记过）
+    if (exactIdx >= 0) {
+        Instance& keep = m_inst[(size_t)exactIdx];
+        int dupIdx = (loaderIdx >= 0) ? loaderIdx : vanillaIdx;
+        if (dupIdx >= 0 && dupIdx != exactIdx) {
+            applyName(keep, m_inst[(size_t)dupIdx]);
+            // 同名的「原版 / 旧加载器」记录是同一个游戏，合并掉，避免注册表里留僵尸项
+            int eraseAt = dupIdx;
+            m_inst.erase(m_inst.begin() + (std::ptrdiff_t)eraseAt);
+            if (eraseAt < exactIdx) --exactIdx;
+        }
+        DetectLoader(m_inst[(size_t)exactIdx]);
+        SaveInstances();
+        return m_inst[(size_t)exactIdx].id;
+    }
+
+    auto retarget = [&](int idx) {
+        Instance& in = m_inst[(size_t)idx];
+        in.versionId = loaderVersionId;
+        DetectLoader(in);          // 刷新 loader / loaderVersion
+        SaveInstances();
+        SaveInstanceSettings(in);
+        return in.id;
+    };
+
+    // 情况 B：更新加载器时优先复用原来那个加载器实例，其次才是原版实例
+    if (loaderIdx >= 0) return retarget(loaderIdx);
+    if (vanillaIdx >= 0) return retarget(vanillaIdx);
+    return AddInstance(folder, loaderVersionId, "");
+}
+
+// ---------------------------------------------------------------
+// 磁盘为准的实例表维护
+// ---------------------------------------------------------------
+void Store::RebuildParentCache() {
+    m_parents.clear();
+    for (const auto& f : m_folders) {
+        std::set<std::string> parents;
+        for (const auto& vid : VersionsInFolder(f)) {
+            std::string p = ParentOf(f, vid);
+            if (!p.empty() && p != vid) parents.insert(p);
+        }
+        // 键统一成规范路径：实例的 folder 可能是 "D:/a" 也可能是 "D:\a"
+        m_parents[NormalizePath(f)].insert(parents.begin(), parents.end());
+    }
+}
+
+bool Store::SyncWithDisk() {
+    bool changed = false;
+
+    // 0) 注册表里的文件夹一定参与对账（folders.json 丢了也不会把游戏判成不存在）
+    for (const auto& in : m_inst) {
+        if (in.folder.empty()) continue;
+        bool known = false;
+        for (const auto& f : m_folders) if (SamePath(f, in.folder)) { known = true; break; }
+        if (!known) m_folders.push_back(in.folder);
+    }
+
+    // 1) 磁盘上真实存在的版本（每个已登记文件夹）
+    //    文件夹本身不存在（移动硬盘没插 / 网络盘掉线）时整段跳过，避免误删实例记录
+    std::map<std::string, std::set<std::string>> disk;      // key = NormalizePath(folder)
+    for (const auto& f : m_folders) {
+        if (!DirExists(f)) continue;
+        auto vs = VersionsInFolder(f);
+        disk[NormalizePath(f)] = std::set<std::string>(vs.begin(), vs.end());
+    }
+
+    // 2) 剔除版本目录已被删除 / 文件夹不再登记的实例
+    for (size_t i = 0; i < m_inst.size();) {
+        Instance& in = m_inst[i];
+        if (!DirExists(in.folder)) { ++i; continue; }        // 整个文件夹不见了：先留着
+        auto it = disk.find(NormalizePath(in.folder));
+        bool exists = (it != disk.end()) && it->second.count(in.versionId) > 0;
+        if (!exists) {
+            if (m_current == in.id) m_current.clear();
+            m_inst.erase(m_inst.begin() + (std::ptrdiff_t)i);
+            changed = true;
+            continue;
+        }
+        ++i;
+    }
+
+    // 3) 补登记磁盘上有、注册表里没有的版本
+    for (auto& kv : disk) {
+        for (const auto& vid : kv.second) {
+            bool has = false;
+            std::string vidStr = vid;
+            for (auto& in : m_inst) {
+                if (SamePath(in.folder, kv.first) && in.versionId == vidStr) { has = true; break; }
+            }
+            if (has) continue;
+            Instance in;
+            in.folder = kv.first;
+            in.versionId = vid;
+            in.id = MakeId(kv.first + "|" + vid);
+            int bump = 1;
+            while (Find(in.id)) in.id += "_" + std::to_string(bump++);
+            std::wstring w = DefaultNameFromVersion(vid);
+            in.name = WToUtf8(w);
+            DetectLoader(in);
+            m_inst.push_back(std::move(in));
+            changed = true;
+        }
+    }
+
+    // 3.5) 同一个文件夹 + 同一个版本出现多条记录（旧版把路径写法不同当成两个目录）→ 合并成一条，
+    //      保留「当前游戏」或最近玩过的那条
+    {
+        std::map<std::string, size_t> best;
+        for (size_t i = 0; i < m_inst.size(); ++i) {
+            std::string key = NormalizePath(m_inst[i].folder) + "|" + m_inst[i].versionId;
+            for (char& c : key) c = (char)tolower((unsigned char)c);
+            auto it = best.find(key);
+            if (it == best.end()) { best[key] = i; continue; }
+            size_t& k = it->second;
+            const bool curKeep = (m_inst[k].id == m_current);
+            const bool curNew = (m_inst[i].id == m_current);
+            if (curNew || (!curKeep && m_inst[i].lastPlayed > m_inst[k].lastPlayed)) k = i;
+        }
+        if (best.size() != m_inst.size()) {
+            std::vector<char> keep(m_inst.size(), 0);
+            for (auto& kv : best) keep[kv.second] = 1;
+            std::vector<Instance> out;
+            out.reserve(best.size());
+            for (size_t i = 0; i < m_inst.size(); ++i)
+                if (keep[i]) out.push_back(std::move(m_inst[i]));
+            m_inst.swap(out);
+            changed = true;
+        }
+    }
+
+    // 4) 版本目录集合没变 → 父版本关系也不会变，不必每次重建都去读一堆 JSON
+    if (changed || m_parents.empty()) RebuildParentCache();
+
+    // 5) 当前实例如果只是「被加载器引用的原版组件」→ 自动切到继承它的那个实例。
+    //    否则用户装完加载器后首页还停在原版上，看起来就像多了一个游戏。
+    if (!m_current.empty()) {
+        Instance* cur = nullptr;
+        for (auto& in : m_inst) if (in.id == m_current) { cur = &in; break; }
+        if (cur && IsParentOnly(cur->folder, cur->versionId)) {
+            Instance* best = nullptr;
+            for (auto& in : m_inst) {
+                if (in.folder != cur->folder) continue;
+                if (ParentOf(in.folder, in.versionId) != cur->versionId) continue;
+                if (!best || in.lastPlayed > best->lastPlayed) best = &in;
+            }
+            if (best && best->id != m_current) { m_current = best->id; changed = true; }
+        }
+    }
+
+    // 6) 当前实例空了 → 指回第一个（HMCL 也是自动选一个）
+    if (m_current.empty() && !m_inst.empty()) {
+        m_current = m_inst.front().id;
+        changed = true;
+    }
+    if (changed) SaveInstances();
+    return changed;
+}
+
+bool Store::IsParentOnly(const std::string& folder, const std::string& versionId) const {
+    auto it = m_parents.find(NormalizePath(folder));
+    if (it == m_parents.end()) return false;
+    return it->second.count(versionId) > 0;
+}
+
+bool Store::IsVisibleInstance(const Instance& in) const {
+    // 被别的版本 inheritsFrom 引用的原版版本只算组件（HMCL 3.6 也把它们当作组件的母版本）
+    return !IsParentOnly(in.folder, in.versionId);
+}
+
+int Store::HiddenParentCount() const {
+    int n = 0;
+    for (const auto& in : m_inst) if (!IsVisibleInstance(in)) ++n;
+    return n;
 }
 
 void Store::RemoveInstance(const std::string& id) {

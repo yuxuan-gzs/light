@@ -1,4 +1,4 @@
-// UiPaint.cpp — 绘制：页面、控件、卡片网格、侧边栏、弹窗
+﻿// UiPaint.cpp — 绘制：页面、控件、卡片网格、侧边栏、弹窗
 #include "Ui.h"
 #include "UiNav.h"
 #include "Theme.h"
@@ -230,11 +230,27 @@ void Ui::Paint(HDC hdc, const RECT& client) {
 }
 
 void Ui::PaintHome(Gdiplus::Graphics& g) {
+    if (m_showLaunchDlg) {
+        DrawLaunchDialog(g);
+        for (auto& w : m_widgets) DrawWidget(g, w);
+        return;
+    }
     // 当前实例背景卡
-    Gdiplus::RectF card((float)CX - 12, (float)26, (float)(m_width - 32 - CX + 12), 262);
+    Gdiplus::RectF card((float)CX - 12, (float)22, (float)(m_width - 32 - CX + 12), 208);
     theme::FillRoundRect(g, card, 16, Gdiplus::Color(230, 255, 255, 255));
     theme::StrokeRoundRect(g, card, 16, theme::C(theme::LINE_SOFT), 1.0f);
     for (auto& w : m_widgets) DrawWidget(g, w);
+}
+
+// 启动弹窗底图：遮罩 + 面板
+void Ui::DrawLaunchDialog(Gdiplus::Graphics& g) {
+    Gdiplus::SolidBrush mask(Gdiplus::Color(130, 0, 0, 0));
+    g.FillRectangle(&mask, Gdiplus::RectF(0, 0, (float)m_width, (float)m_height));
+    int dw = std::min(760, m_width - 80), dh = std::min(460, m_height - 80);
+    int dx = (m_width - dw) / 2, dy = (m_height - dh) / 2;
+    Gdiplus::RectF card((float)dx, (float)dy, (float)dw, (float)dh);
+    theme::FillRoundRect(g, card, 16, Gdiplus::Color(255, 255, 255, 255));
+    theme::StrokeRoundRect(g, card, 16, theme::C(theme::LINE_SOFT), 1.0f);
 }
 
 void Ui::PaintVersions(Gdiplus::Graphics& g) {

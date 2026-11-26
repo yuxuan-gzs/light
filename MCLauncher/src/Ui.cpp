@@ -1,4 +1,4 @@
-// Ui.cpp — 自绘主窗口：窗口过程 / 输入事件 / 异步事件 / 页面调度
+﻿// Ui.cpp — 自绘主窗口：窗口过程 / 输入事件 / 异步事件 / 页面调度
 #include "Ui.h"
 #include "UiNav.h"
 #include "Theme.h"
@@ -204,6 +204,7 @@ void Ui::SetPage(Page p) {
     if (m_page != p) m_scrollY = 0;
     m_page = p;
     m_showOfflineDlg = false;
+    m_showLaunchDlg = false;
     m_skinDrag = false;
     if (p == Versions) {
         mlc::Instance* in = CurInst();
@@ -214,16 +215,23 @@ void Ui::SetPage(Page p) {
         }
     }
     if (p == Download) {
-        m_dlFolders.clear();                  // 重新收集安装目录
+        m_dlFolders.clear();
         // 从「模组/资源包页 → 去下载」跳进来时，也像 HMCL 一样先显示一页全部
-        if (m_dlCat >= 1 && m_dlCat <= 3 && m_hits.empty() && !m_dlSearching)
+        if (m_dlCat == 1 && m_addonHits.empty() && !m_dlSearching) {
+            StartAddonSearch(0);
+        } else if (m_dlCat >= 2 && m_dlCat <= 3 && m_hits.empty() && !m_dlSearching) {
             StartDownloadSearch();
+        }
     }
     Rebuild();
     InvalidateRect(m_hwnd, nullptr, FALSE);
 }
 
 void Ui::Rebuild() {
+    // 每次重建前先和磁盘对账（照 HMCL：实例列表就是 versions\* 的扫描结果）。
+    // 这样在资源管理器里手动删掉版本目录后，「已安装」和列表项会立刻消失。
+    mlc::Store::I().SyncWithDisk();
+
     // 重建前记住各滚动控件的偏移（按 id），否则点一下列表就跳回顶部
     std::map<std::wstring, int> scrollKeep;
     for (auto& w : m_widgets) {
@@ -384,8 +392,11 @@ void Ui::OnLButtonDown(int x, int y) {
     }
 
     Widget* hit = nullptr;
-    for (auto& w : m_widgets) {
-        if (w.type != Widget::Label && inRect(w.rc, x, y)) { hit = &w; break; }
+    for (auto it = m_widgets.rbegin(); it != m_widgets.rend(); ++it) {
+        auto& w = *it;
+        // 跳过 Label 和 Panel（Panel 只做背景，不能拦截点击）
+        if (w.type == Widget::Label || w.type == Widget::Panel) continue;
+        if (inRect(w.rc, x, y)) { hit = &w; break; }
     }
 
     // 点了空白：提交编辑并收起
@@ -398,6 +409,26 @@ void Ui::OnLButtonDown(int x, int y) {
     case Widget::Btn:
         if (m_editOverlay && IsWindowVisible(m_editOverlay)) CommitEdit();
         hit->pressed = true;
+        // [AutoFix] 拦截顶部下载分类按钮，切换后自动搜索
+        if (hit->id.rfind(L"dl.cat", 0) == 0) {
+            int newCat = _wtoi(hit->id.c_str() + 6);
+            if (newCat >= 0 && newCat <= 4 && m_dlCat != newCat) {
+                m_dlCat = newCat;
+                // 切换分类时强制清空并重新搜索（如果为空）
+                if (m_dlCat == 1) {
+                    m_addonHits.clear();
+                    if (!m_dlSearching) StartAddonSearch(0);
+                } else if (m_dlCat >= 2 && m_dlCat <= 3) {
+                    m_hits.clear();
+                    if (!m_dlSearching) StartDownloadSearch();
+                }
+                Rebuild();
+            } else if (newCat >= 0 && newCat <= 4 && m_dlCat == newCat) {
+                // 如果点的是当前分类，且列表为空，也触发一次搜索（防止之前失败后无法重试）
+                if (m_dlCat == 1 && m_addonHits.empty() && !m_dlSearching) StartAddonSearch(0);
+                else if (m_dlCat >= 2 && m_dlCat <= 3 && m_hits.empty() && !m_dlSearching) StartDownloadSearch();
+            }
+        }
         break;
     case Widget::Combo:
         if (m_editOverlay && IsWindowVisible(m_editOverlay)) CommitEdit();
@@ -764,6 +795,10 @@ void Ui::OnTimerTick() {
                 try {
                     json::Value root = json::parse(d.substr(16));
                     if ((unsigned long long)root.get("seq").asInt() != m_addonSearchSeq) {
+                        // seq 不匹配：说明这是旧请求的结果，直接丢弃
+                        // 但必须确保 m_dlSearching 已经被重置（上面已重置）
+                        mlc::Log("[addon] stale search result ignored, seq mismatch");
+                        Rebuild();
                         redraw = true;
                         continue;
                     }
@@ -894,8 +929,8 @@ void Ui::OnTimerTick() {
                                       d.find("-forge-") != std::string::npos ||
                                       d.find("neoforge-") != std::string::npos;
                 if (isLoader) {
-                    m_progressText = L"加载器安装完成：已新建版本 " + mlc::Utf8ToW(d) +
-                                     L"（原版保留），并切换为当前游戏";
+                    // 照 HMCL：加载器是装进这个游戏的组件，不是「又装了一个游戏」
+                    m_progressText = L"加载器已装入当前游戏（版本 " + mlc::Utf8ToW(d) + L"）";
                 } else {
                     m_progressText = L"安装完成";
                 }
@@ -974,7 +1009,9 @@ void Ui::OnTimerTick() {
             Rebuild();
             redraw = true;
         } else if (t == (int)launcher::Ev::Info || t == (int)launcher::Ev::Log) {
-            if (d.rfind("__mscode__:", 0) == 0) {
+            if (d == "__autosearch_addon__") {
+                StartAddonSearch(0);
+            } else if (d.rfind("__mscode__:", 0) == 0) {
                 // 设备码到达：userCode|verificationUri
                 std::string payload = d.substr(11);
                 size_t bar = payload.find('|');
@@ -1128,3 +1165,9 @@ void Ui::OnTimerTick() {
 }
 
 } // namespace ui
+
+
+
+
+
+

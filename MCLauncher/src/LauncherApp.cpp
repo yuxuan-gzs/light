@@ -243,13 +243,24 @@ void App::installWorker(std::string folder, std::string versionId, int loaderTyp
         }
     }
 
-    // 注册实例
+    // 注册实例（照 HMCL：一个版本目录就是一个游戏；加载器是「装进」这个游戏，
+    // 新版本覆盖旧版本，不会再多出第二个游戏）
     mlc::Store& store = mlc::Store::I();
-    std::string iid = store.AddInstance(folder, finalVersionId,
-                                        displayName.empty() ? std::string() : displayName);
+    std::string iid;
+    if (finalVersionId != versionId && !finalVersionId.empty()) {
+        iid = store.AdoptLoaderVersion(folder, finalVersionId);
+    }
+    if (iid.empty()) iid = store.EnsureInstance(folder, finalVersionId);
+    if (!iid.empty() && !displayName.empty()) {
+        if (mlc::Instance* in = store.Find(iid)) {
+            std::wstring w = mlc::Utf8ToW(displayName);
+            if (!mlc::IsValidGameName(w)) w = mlc::SanitizeGameName(w);
+            if (!w.empty()) { in->name = mlc::WToUtf8(w); store.SaveInstances(); }
+        }
+    }
     store.EnsureFolder(folder);
     store.SetCurrentFolder(folder);
-    if (store.CurrentId().empty()) store.SetCurrent(iid);
+    store.SetCurrent(iid);
 
     m_installing.store(false);
     {
@@ -273,8 +284,8 @@ void App::startInstallLoader(const std::string& folder, const std::string& mcVer
             [this](const std::string& msg) { emit(Ev::Log, msg); }, err);
         m_installing.store(false);
         if (!id.empty()) {
-            // 复用同名实例（重复安装不产生第二个「游戏」），并切到它
-            std::string iid = mlc::Store::I().EnsureInstance(folder, id);
+            // 装进当前游戏：把原版实例改成指向加载器版本（同一个游戏，不新增）
+            std::string iid = mlc::Store::I().AdoptLoaderVersion(folder, id);
             if (!iid.empty()) mlc::Store::I().SetCurrent(iid);
             emit(Ev::InstallDone, id);
         } else {
@@ -307,7 +318,7 @@ void App::startInstallForge(const std::string& folder, const std::string& fullVe
             if (low.find("forge") != std::string::npos) { id = x; break; }
         }
         if (!id.empty()) {
-            std::string iid = mlc::Store::I().EnsureInstance(folder, id);
+            std::string iid = mlc::Store::I().AdoptLoaderVersion(folder, id);
             if (!iid.empty()) mlc::Store::I().SetCurrent(iid);
         }
         emit(Ev::InstallDone, id.empty() ? fullVersion : id);
@@ -336,7 +347,7 @@ void App::startInstallNeoForge(const std::string& folder, const std::string& ful
             if (low.find("neoforge") != std::string::npos) { id = x; break; }
         }
         if (!id.empty()) {
-            std::string iid = mlc::Store::I().EnsureInstance(folder, id);
+            std::string iid = mlc::Store::I().AdoptLoaderVersion(folder, id);
             if (!iid.empty()) mlc::Store::I().SetCurrent(iid);
         }
         emit(Ev::InstallDone, id.empty() ? fullVersion : id);
@@ -358,8 +369,30 @@ bool App::removeLoaderVersion(const std::string& folder, const std::string& vers
     fs::path dir = fs::u8path(mlc::JoinPath(mlc::JoinPath(folder, "versions"), versionId));
     std::error_code ec;
     if (!fs::is_directory(dir, ec)) { err = "版本目录不存在"; return false; }
+
+    // 卸载加载器 = 把这个游戏退回原版（照 HMCL：组件从实例上摘掉，游戏本身还在）
+    std::string parent = mlc::Store::ParentOf(folder, versionId);
+    if (!parent.empty() &&
+        !mlc::FileExists(mlc::JoinPath(mlc::JoinPath(mlc::JoinPath(folder, "versions"), parent),
+                                       parent + ".json"))) {
+        parent.clear();
+    }
+
     fs::remove_all(dir, ec);
     if (ec) { err = "删除失败: " + ec.message(); return false; }
+
+    mlc::Store& store = mlc::Store::I();
+    if (!parent.empty()) {
+        for (auto& in : store.list()) {
+            if (in.folder != folder || in.versionId != versionId) continue;
+            in.versionId = parent;
+            mlc::Store::DetectLoader(in);
+            store.SaveInstances();
+            store.SaveInstanceSettings(in);
+            break;
+        }
+    }
+    store.SyncWithDisk();
     return true;
 }
 
